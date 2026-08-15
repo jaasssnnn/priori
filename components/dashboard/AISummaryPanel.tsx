@@ -14,7 +14,7 @@ export default function AISummaryPanel({ summary }: Props) {
         </div>
         <p className="text-sm font-semibold text-indigo-900">AI Health Summary</p>
         <span className="ml-auto rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-600">
-          Mock · Groq llama-3.3-70b in Phase 6
+          Groq · llama-3.3-70b
         </span>
       </div>
 

@@ -1,30 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Plus, X, GitCompare, Sparkles, TrendingUp, TrendingDown, Minus, ShieldAlert } from "lucide-react";
+import { Plus, X, GitCompare, Sparkles, TrendingUp, TrendingDown, Minus, ShieldAlert, Loader2 } from "lucide-react";
 import { MOCK_COMPANIES } from "@/lib/mock/companies";
 import { MOCK_SNAPSHOTS } from "@/lib/mock/snapshots";
 import type { Company, Snapshot } from "@/types";
 import { cn } from "@/lib/utils";
-
-// ─── Mock AI competitive insight ─────────────────────────────────────────────
-
-function generateInsight(companies: Company[], snapshots: Snapshot[]): string {
-  if (companies.length < 2) return "";
-  const sorted = [...companies].sort((a, b) => {
-    const sa = snapshots.find((s) => s.company_id === a.id)?.health_score ?? 0;
-    const sb = snapshots.find((s) => s.company_id === b.id)?.health_score ?? 0;
-    return sb - sa;
-  });
-  const best  = sorted[0];
-  const worst = sorted[sorted.length - 1];
-  const bestSnap  = snapshots.find((s) => s.company_id === best.id)!;
-  const worstSnap = snapshots.find((s) => s.company_id === worst.id)!;
-  const worstTopCat = worstSnap.categories[0];
-
-  return `${best.name} leads in user sentiment with a health score of ${bestSnap.health_score}/100 compared to ${worst.name}'s ${worstSnap.health_score}/100. ${worst.name}'s biggest weakness — ${worstTopCat.name} (${worstTopCat.score}/100) — is an area where ${best.name} has relatively fewer complaints. The regulatory risk exposure is highest at ${worst.name}, with ${worstSnap.categories.filter((c) => c.regulatory_flag).length} complaint categories flagged for compliance concerns. Teams at ${worst.name} would benefit from studying how ${best.name} has structured their payment failure resolution and customer support escalation paths to reduce complaint volume in these categories.`;
-}
 
 // ─── Shared category row ──────────────────────────────────────────────────────
 
@@ -185,7 +167,32 @@ export default function CompareClient() {
     });
   }, [snapshots]);
 
-  const insight = useMemo(() => generateInsight(companies, snapshots), [companies, snapshots]);
+  const [insight, setInsight]           = useState<string>("");
+  const [insightLoading, setInsightLoading] = useState(false);
+
+  const fetchInsight = useCallback(async (ids: string[]) => {
+    if (ids.length < 2) { setInsight(""); return; }
+    setInsightLoading(true);
+    try {
+      const res = await fetch("/api/compare/insight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyIds: ids }),
+      });
+      if (res.ok) {
+        const { insight: text } = await res.json();
+        if (text) setInsight(text);
+      }
+    } catch {
+      // silently ignore — insight panel just stays empty
+    } finally {
+      setInsightLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchInsight(selectedIds);
+  }, [selectedIds, fetchInsight]);
 
   function toggleCompany(id: string) {
     setSelectedIds((prev) =>
@@ -258,7 +265,7 @@ export default function CompareClient() {
           </div>
 
           {/* AI Insight */}
-          {insight && (
+          {(insight || insightLoading) && (
             <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-6 mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600">
@@ -266,10 +273,16 @@ export default function CompareClient() {
                 </div>
                 <p className="text-sm font-semibold text-indigo-900">AI Competitive Insight</p>
                 <span className="ml-auto rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-600">
-                  Mock · Groq in Phase 6
+                  Groq · llama-3.3-70b
                 </span>
               </div>
-              <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+              {insightLoading ? (
+                <div className="flex items-center gap-2 text-sm text-indigo-400">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Generating insight…
+                </div>
+              ) : (
+                <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+              )}
             </div>
           )}
 
