@@ -1,0 +1,482 @@
+Here's the final documentation:
+
+---
+
+# Priori — App Documentation
+
+## What Is FinScope
+
+Priori is a portfolio-ready B2B product intelligence and ops platform that lets product teams track what users are saying about any company, prioritize what to fix first, and manage the resolution workflow end to end.
+
+You search for any company by name. Priori pulls live public data from Google Play Store reviews, Apple App Store reviews, Reddit discussions, and Twitter/X posts. It categorizes complaints into problem buckets using AI, scores each bucket by frequency, sentiment severity, and regulatory relevance, and outputs a ranked prioritization list.
+
+But Priori doesn't stop at analysis. When a complaint category is surfaced, teams can create action items directly from it — assign an owner, set a deadline, define resolution steps, and push the assignment to the owner's Slack. Every decision (acted on, deprioritized, deferred) is logged in an audit trail with reasoning, building an accountability record over time.
+
+Add companies to a watchlist to track complaint trends week over week. Get alerts via email or Slack when complaint volumes spike. Compare competitors side by side on the same complaint dimensions.
+
+Three interaction modes: you come to it (dashboard), it comes to you (Slack/email alerts), you work through it (dispute workflow with Slack-pushed assignments).
+
+Built to demonstrate product management skills: prioritization frameworks, operational workflow design, process accountability, competitive analysis, AI integration, B2B UX, and the ability to ship a full-stack product end to end.
+
+## The Problem It Solves
+
+Product ops teams at fintechs currently triage user complaints manually. A typical week looks like this:
+
+A PM manually checks Play Store reviews, scrolls through Reddit, searches Twitter. They copy-paste the bad reviews into a Google Sheet and try to group them by hand ("these 15 are payment failures, these 8 are cashback issues"). They bring the spreadsheet to a standup and say "payment failures seem to be spiking." Someone asks "compared to when?" — they don't know, because they didn't track it comparably. Someone says "I'll look into it." No deadline, no tracking. A week later, the manager asks what happened. The person who said they'd handle it is on leave. Nobody documented what was decided or why.
+
+FinScope structures this entire process: automated complaint collection and categorization, trend tracking over time, a workflow tracker with owners and deadlines pushed to Slack, and an audit trail so there's always a record of what was decided and why.
+
+## Core Product Pillars
+
+### 1. Open Company Search
+Search for any company — not a preset list. The app searches Google Play Store, App Store, Reddit, and Twitter/X for the company name, pulls reviews and discussions, and builds an instant health snapshot.
+
+### 2. Complaint Analysis + Prioritization Engine
+The core IP. Raw complaints are noise. FinScope's AI categorizes them into problem buckets and scores each:
+
+```
+Score = (Frequency × 0.4) + (Sentiment Severity × 0.3) + (Regulatory Relevance × 0.3)
+```
+
+- Frequency: how many times this complaint category appears across all sources, normalized per 100 reviews
+- Sentiment Severity: average negative sentiment intensity within the category (scale 0-1, computed by AI)
+- Regulatory Relevance: 1.5x multiplier if the complaint touches a compliance-sensitive area (payments, data privacy, lending terms, KYC, refunds)
+
+Output: a ranked list of problem buckets with scores, example quotes, source links, and a one-line AI recommendation per bucket.
+
+### 3. Dispute/Issue Workflow Tracker
+When a complaint category is surfaced, the PM can create an action item directly from it:
+- Assign an owner
+- Set a deadline
+- Define resolution steps
+- Track status (Open → In Progress → Resolved → Closed)
+- Push the assignment to the owner's Slack as a structured message
+
+This turns FinScope from "here's what's broken" into "here's what's broken, who's fixing it, and by when."
+
+### 4. Risk Decision Audit Trail
+Every decision on a complaint category is logged:
+- What was the complaint category?
+- What was decided? (Act on it / Deprioritize / Defer)
+- Why? (Free-text reasoning)
+- Who decided?
+- When?
+
+Over time this builds an accountability record. Shows decision consistency, helps during retrospectives, and demonstrates the kind of process thinking that ops teams need.
+
+### 5. Watchlist + Alerts
+Save companies to a persistent watchlist. FinScope automatically re-pulls data weekly and compares against previous snapshots. When a complaint category spikes (frequency up 30%+ week-over-week) or a new complaint pattern emerges (5+ complaints in a category that didn't exist before), the user gets:
+- An in-app alert on the watchlist page
+- An email notification
+- A Slack message to their configured channel
+
+### 6. Competitive Benchmarking
+Add 2-3 companies and compare them side by side:
+- Overall sentiment comparison
+- Same complaint categories across companies (who has it worse?)
+- Rating comparison
+- Trend direction comparison
+- AI-generated competitive insight: "Company A's biggest weakness (Payment Failures) is something Company B resolved 3 months ago by..."
+
+### 7. Slack Integration
+Not a bolt-on notification pipe — Slack is woven into the workflow:
+- **Workflow assignments:** When a PM creates an action item and assigns an owner, the owner gets a structured Slack DM or channel message with: complaint category, severity, deadline, and a link back to FinScope
+- **Overdue nudges:** When a deadline passes without resolution, a follow-up message is sent
+- **Spike alerts:** When a watchlisted company's complaint category spikes, the configured Slack channel gets a notification
+- **Connection:** OAuth-based workspace connection. User selects which channel to post to.
+
+## Target User
+
+Product managers, product ops, or growth teams at fintech companies (or any tech company — the engine is company-agnostic). The person using FinScope:
+
+- Currently triages complaints manually using spreadsheets and Slack threads
+- Has no structured way to track what was acted on, deprioritized, or why
+- Needs to compare their product against competitors on the same complaint dimensions
+- Wants complaint trends tracked over time without manually re-checking every week
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15, App Router, Turbopack |
+| UI | React 19, TailwindCSS v3 |
+| Auth | Supabase Auth (Google OAuth via `@supabase/ssr`) |
+| Database | Supabase Postgres (Row Level Security) |
+| Charts | Recharts |
+| Icons | Lucide React |
+| Animations | Framer Motion |
+| Google Play Reviews | `google-play-scraper` npm package (no API key needed) |
+| App Store Reviews | `app-store-scraper` npm package (no API key needed) |
+| Reddit Data | Reddit public JSON API — no auth needed for read-only search |
+| Twitter/X Data | Twitter/X API v2 (free tier — read-only search, limited to recent tweets) |
+| Slack Integration | Slack Web API + OAuth (`@slack/web-api`, `@slack/oauth`) |
+| Email Notifications | Resend (free tier, 100 emails/day) or Nodemailer with Gmail SMTP |
+| AI | Groq API (`llama-3.3-70b-versatile`), free tier |
+| State | React Context |
+| Hosting | Vercel (free tier) + Vercel Cron (weekly watchlist refresh) |
+
+## Data Sources — Technical Details
+
+### Google Play Store Reviews
+- Package: `google-play-scraper` (npm)
+- Server-side route: `/api/reviews/google-play`
+- Input: app ID (e.g., `com.dreamplug.androidapp` for CRED)
+- Pulls: up to 500 most recent reviews with rating, text, date, thumbsUp count
+- No API key required
+
+### App Store Reviews
+- Package: `app-store-scraper` (npm)
+- Server-side route: `/api/reviews/app-store`
+- Input: app ID (numeric) — resolved from company name via search
+- Pulls: up to 500 most recent reviews with rating, text, date
+- No API key required
+
+### Reddit Discussions
+- Endpoint: `https://www.reddit.com/search.json?q={company_name}+complaints&sort=new&limit=100`
+- Server-side route: `/api/reviews/reddit`
+- Pulls: post title, selftext, score, num_comments, created_utc, subreddit, permalink
+- Also fetches top comments per post (up to 10 per thread)
+- Rate limit: 1 request per second server-side throttling
+- No auth required
+
+### Twitter/X
+- Server-side route: `/api/reviews/twitter`
+- Uses Twitter API v2 recent search endpoint
+- Query: `{company_name} (complaint OR issue OR problem OR worst OR terrible OR broken) -is:retweet lang:en`
+- Pulls: tweet text, created_at, public_metrics (likes, retweets, replies), author username
+- Free tier: 500k tweets/month read, 1 app per project
+- Requires API key (set in env vars)
+
+### Slack API
+- Package: `@slack/web-api`, `@slack/oauth`
+- OAuth flow: `/api/slack/auth` → `/api/slack/callback`
+- Scopes: `chat:write`, `channels:read`, `users:read`
+- Message posting: `chat.postMessage` with Block Kit formatted messages
+- Token stored in Supabase per user (encrypted)
+
+## Company Search Flow
+
+1. User types a company name in the search bar
+2. Server-side route `/api/search/company` searches Google Play Store for matching apps
+3. Results returned with app name, developer, icon, app ID, rating, install count
+4. User selects the correct app
+5. App ID pulls Play Store and App Store reviews
+6. Company name searches Reddit and Twitter/X
+7. All four sources feed into the AI classification pipeline
+8. For companies without a mobile app: Reddit + Twitter data still works. App store sections show a "no app found" notice.
+
+## AI Classification Engine
+
+Server-side route: `/api/analyze`
+
+### Step 1: Complaint Categorization
+AI reads each negative review/post (rating ≤ 3 for app stores, negative sentiment for Reddit/Twitter) and assigns to complaint categories:
+
+- UX/Interface Issues
+- Payment Failures
+- Customer Support
+- App Performance (crashes, loading)
+- Account/KYC Issues
+- Pricing/Fees
+- Feature Requests
+- Data Privacy Concerns
+- Refund Issues
+- Onboarding Friction
+- Other (catch-all, should be < 10%)
+
+The AI can create new categories if a cluster doesn't fit. Categories are normalized across sources.
+
+### Step 2: Sentiment Scoring
+Each complaint gets a severity score (0-1):
+- 0.0-0.3: Mild frustration
+- 0.3-0.6: Clear dissatisfaction
+- 0.6-0.8: Strong negative
+- 0.8-1.0: Critical (lost money, reporting to regulator, deleting app)
+
+### Step 3: Regulatory Tagging
+AI flags complaints touching regulatory-sensitive areas. "Hidden charges on my loan" → Lending Compliance. "Can't delete my account" → Data Privacy. Feeds the 1.5x multiplier in scoring.
+
+### Step 4: Prioritization Output
+Each category gets a final score:
+```
+Score = (Frequency_normalized × 0.4) + (Avg_severity × 0.3) + (Regulatory_flag × 0.3)
+```
+Where regulatory_flag = 1.5 if any complaints are regulatory-tagged, else 1.0.
+
+Output per category: name, score, complaint count, average severity, regulatory flag, top 3 quotes with source links, one-line AI recommendation.
+
+## Pages
+
+### Landing Page (`/`)
+- Headline: "Know what users are saying. Know what to fix first."
+- Search bar front and center
+- 3 value-prop cards: Track, Prioritize, Act
+- "Continue with Google" auth button
+- Dashboard screenshot in device frame
+- "Try demo" button for instant access with sample data
+
+### Search Results Page (`/search`)
+- Matching apps from Play Store search
+- Each result: app icon, name, developer, rating, install count
+- Click to select → triggers data pull → redirects to dashboard
+
+### Dashboard Page (`/dashboard/[companyId]`)
+**Header:** Company name, app icon, overall rating, total reviews analyzed, last analyzed timestamp, "Add to Watchlist" button
+
+**Health Score Card:** 0-100 score (inverse of complaint severity). Trend arrow if watchlisted.
+
+**Complaint Category Cards (Prioritized):** Ranked list, each showing:
+- Category name + priority score (color-coded: red ≥ 70, orange ≥ 40, green < 40)
+- Complaint count + severity bar
+- Regulatory flag badge if applicable
+- Top quote
+- Expand for all quotes with source links
+- AI recommendation
+- **"Create Action Item" button** → opens workflow tracker form
+
+**Source Breakdown:** Donut chart (Play Store vs App Store vs Reddit vs Twitter)
+
+**Rating Distribution:** Bar chart of 1-5 star ratings
+
+**Sentiment Trend Chart:** Weekly sentiment over past 3 months (requires watchlist history)
+
+**AI Summary Panel:** 3-paragraph brief — health assessment, most urgent problem, what's improving
+
+### Workflow Tracker Page (`/workflows`)
+- Table of all action items across all companies
+- Columns: complaint category, company, owner, deadline, status (Open/In Progress/Resolved/Closed), created date
+- Filter by: company, status, owner, overdue
+- Each row expandable to show: resolution steps, audit trail entries, Slack notification history
+- **Create Action Item form:** complaint category (pre-filled if created from dashboard), owner (text input), deadline (date picker), resolution steps (textarea), Slack channel to notify (dropdown from connected workspace)
+- On save: creates the item + sends Slack message to the owner
+
+### Audit Trail Page (`/audit`)
+- Chronological feed of all decisions across all companies
+- Each entry: timestamp, company, complaint category, decision (Acted On / Deprioritized / Deferred), reasoning, decided by
+- Filter by: company, decision type, date range
+- Exportable as CSV
+- Summary stats: total decisions, act vs deprioritize ratio, average time from complaint surfaced to decision
+
+### Watchlist Page (`/watchlist`)
+- Grid of saved company cards: icon, name, health score, trend arrow, top complaint, last updated
+- Alert badges when spikes detected
+- "Add company" button → search flow
+- Click card → company dashboard
+
+### Alerts Page (`/alerts`)
+- Chronological feed of alerts from watchlisted companies
+- Alert types:
+  - Complaint spike: "{Category} complaints up {X}% this week for {Company}"
+  - New trend: "New complaint pattern detected: {Category} for {Company}"
+- Each alert links to relevant company dashboard section
+- Mark as read / dismiss
+- Delivery: in-app + email + Slack (based on user settings)
+
+### Compare Page (`/compare`)
+- Select 2-3 companies from watchlist or search
+- Side-by-side columns:
+  - Health score comparison
+  - Same complaint categories across companies
+  - Rating comparison
+  - Trend direction
+- AI-generated competitive insight
+
+### Settings Page (`/settings`)
+- Slack workspace connection (OAuth)
+- Default Slack channel for alerts
+- Email notification preferences (on/off, frequency)
+- Watchlist management
+- Account settings
+
+## Database Schema (Supabase)
+
+### `companies`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| user_id | uuid | FK to auth.users |
+| app_id | text | Google Play app ID |
+| app_store_id | text | Apple App Store ID |
+| name | text | |
+| icon_url | text | |
+| added_at | timestamptz | |
+
+### `snapshots`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| company_id | uuid | FK |
+| health_score | float | |
+| categories | jsonb | Full prioritized category output |
+| review_count | int | |
+| avg_rating | float | |
+| source_breakdown | jsonb | Count per source |
+| created_at | timestamptz | |
+
+### `action_items`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| company_id | uuid | FK |
+| user_id | uuid | FK |
+| category_name | text | Complaint category |
+| owner | text | Assigned person |
+| deadline | date | |
+| status | text | open/in_progress/resolved/closed |
+| resolution_steps | text | |
+| slack_channel | text | Channel ID for notifications |
+| slack_message_ts | text | Slack message timestamp for updates |
+| created_at | timestamptz | |
+| resolved_at | timestamptz | |
+
+### `audit_entries`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| company_id | uuid | FK |
+| user_id | uuid | FK |
+| category_name | text | |
+| decision | text | acted_on/deprioritized/deferred |
+| reasoning | text | Free-text explanation |
+| decided_by | text | |
+| created_at | timestamptz | |
+
+### `alerts`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| company_id | uuid | FK |
+| user_id | uuid | FK |
+| type | text | spike/new_trend |
+| message | text | |
+| read | boolean | default false |
+| email_sent | boolean | default false |
+| slack_sent | boolean | default false |
+| created_at | timestamptz | |
+
+### `slack_connections`
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid | PK |
+| user_id | uuid | FK |
+| team_id | text | Slack workspace ID |
+| team_name | text | |
+| access_token | text | Encrypted |
+| default_channel | text | Channel ID |
+| created_at | timestamptz | |
+
+### `notification_preferences`
+| Column | Type | Notes |
+|--------|------|-------|
+| user_id | uuid | PK, FK |
+| email_enabled | boolean | default true |
+| slack_enabled | boolean | default true |
+| email_address | text | |
+| alert_frequency | text | instant/daily_digest |
+
+## Authentication
+
+Same pattern as ProductRadar:
+1. Supabase Auth with Google OAuth
+2. Middleware checks session on every route
+3. No session → redirect to `/login`
+4. All tables use Row Level Security scoped to `auth.uid()`
+
+## Watchlist + Alert Mechanism
+
+### Weekly Re-pull (Vercel Cron)
+- `/api/cron/refresh-watchlist` runs weekly (Sunday midnight UTC)
+- For each watchlisted company: re-pull reviews from all four sources, re-run AI classification, save new snapshot
+- Compare new vs previous: generate alerts for spikes and new trends
+
+### Spike Detection
+```
+spike = (current_count - previous_count) / previous_count > 0.30
+new_trend = category not in previous snapshot AND current_count >= 5
+```
+
+### Alert Delivery
+When an alert is generated:
+1. Save to `alerts` table (in-app)
+2. If `email_enabled`: send via Resend/Nodemailer
+3. If `slack_enabled`: post to configured Slack channel via `chat.postMessage`
+
+## Slack Message Formats (Block Kit)
+
+### Action Item Assignment
+```
+{complaint_category} — New Action Item
+Severity: {score}/100
+Owner: {owner_name}
+Deadline: {deadline}
+Resolution steps: {steps}
+→ View in FinScope: {link}
+```
+
+### Overdue Nudge
+```
+Overdue: {complaint_category} for {company_name}
+Deadline was: {deadline} ({days_overdue} days ago)
+Owner: {owner_name}
+→ Update status: {link}
+```
+
+### Spike Alert
+```
+Complaint Spike Detected — {company_name}
+{category_name} complaints up {percentage}% this week
+Current count: {count} (was {previous})
+→ View details: {link}
+```
+
+## AI Layer
+
+**Provider:** Groq API, model `llama-3.3-70b-versatile`
+
+| Function | Where | Returns |
+|----------|-------|---------|
+| `classifyComplaints(reviews)` | Analysis pipeline | Array of categorized complaints with severity and regulatory flags |
+| `generatePrioritization(categories)` | Dashboard | Ranked categories with scores and recommendations |
+| `generateHealthSummary(snapshot)` | Dashboard | 3-paragraph health brief |
+| `generateCompetitiveInsight(snapshots[])` | Compare page | Comparative analysis text |
+| `generateAlertMessage(spike_data)` | Cron job | Human-readable alert message |
+
+**Mock mode:** Auto-activates when `NEXT_PUBLIC_GROQ_API_KEY` is missing or `NEXT_PUBLIC_USE_MOCK_AI=true`. Returns realistic static responses.
+
+## Sample Data / Demo Mode
+
+Pre-built demo data for 3 companies (CRED, PhonePe, Paytm) with realistic review snapshots, complaint categories, trend data, sample action items, and audit trail entries. Loaded via "Try demo" button on landing page — no auth required for demo mode.
+
+Demo includes a pre-configured mock Slack workspace so the workflow integration can be demonstrated without a real Slack connection.
+
+## What Makes This Different From ProductRadar
+
+| Dimension | ProductRadar | FinScope |
+|-----------|-------------|----------|
+| Data source | Internal (CSV uploads, Stripe, Mixpanel) | External (public reviews, Reddit, Twitter) |
+| User input | Upload your own data | Search any company |
+| Analysis type | Churn risk scoring per account | Complaint prioritization per category |
+| Ends at | "Here's who's at risk" | "Here's who's fixing it and by when" |
+| Workflow | None — read-only dashboard | Action items with owners, deadlines, Slack assignments |
+| Accountability | Outcome tracking (Saved/Churned) | Decision audit trail with reasoning |
+| Notifications | None | Slack + email alerts |
+| Competitive view | None | Side-by-side benchmarking |
+| Interaction model | You come to it | You come to it + it comes to you + you work through it |
+
+## Deployment
+
+**Target:** Vercel (free tier) + Supabase (free tier) + Groq (free tier) + Resend (free tier)
+
+Environment variables:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_BASE_URL`
+- `NEXT_PUBLIC_GROQ_API_KEY`
+- `NEXT_PUBLIC_USE_MOCK_AI` (default: false)
+- `TWITTER_BEARER_TOKEN`
+- `SLACK_CLIENT_ID`
+- `SLACK_CLIENT_SECRET`
+- `RESEND_API_KEY` (or Gmail SMTP credentials)
+
+**Total monthly cost: $0** (all free tiers)
+
