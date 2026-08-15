@@ -39,7 +39,13 @@ export async function addToWatchlist(company: Company): Promise<void> {
   await fetch("/api/watchlist", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ company_id: company.id }),
+    body: JSON.stringify({
+      company_id:    company.id,
+      company_name:  company.name,
+      company_icon:  company.icon_url,
+      app_id:        company.app_id,
+      app_store_id:  company.app_store_id,
+    }),
   });
 }
 
