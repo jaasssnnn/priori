@@ -20,6 +20,16 @@ export interface RawReview {
   source: string;
   rating?: number | null;
   date: string;
+  url?: string;   // source URL for citations (Reddit permalink, app store page, etc.)
+  author?: string;
+}
+
+interface RawQuote {
+  text: string;
+  source: string;
+  date: string;
+  rating?: number | null;
+  review_id?: number; // index into the original reviews array for URL lookup
 }
 
 interface RawCategory {
@@ -27,7 +37,7 @@ interface RawCategory {
   complaint_count: number;
   avg_severity: number;
   regulatory_flag: boolean;
-  quotes: Array<{ text: string; source: string; date: string; rating?: number }>;
+  quotes: RawQuote[];
   ai_recommendation: string;
 }
 
@@ -40,27 +50,38 @@ export async function classifyComplaints(
 ): Promise<ComplaintCategory[]> {
   const groq = getClient();
 
-  const reviewText = reviews
-    .slice(0, 60) // cap at 60 to stay within token budget
-    .map((r, i) => `${i + 1}. [${r.source}${r.rating ? `, ${r.rating}★` : ""}] "${r.text}"`)
+  const capped = reviews.slice(0, 60);
+
+  // Number each review so Groq can reference them by ID for URL attribution
+  const reviewText = capped
+    .map(
+      (r, i) =>
+        `[${i}] [${r.source}${r.rating != null ? `, ${r.rating}★` : ""}] "${r.text}"`
+    )
     .join("\n\n");
+
+  // Build URL lookup map: review index → URL
+  const urlMap = new Map<number, string>(
+    capped.map((r, i) => [i, r.url ?? ""])
+  );
 
   const prompt = `You are a product intelligence analyst specialising in fintech apps.
 
 Analyse the following user reviews for "${companyName}" and group them into complaint categories.
 
-REVIEWS:
+REVIEWS (each prefixed with its ID in brackets):
 ${reviewText}
 
 INSTRUCTIONS:
 - Create between 5 and 10 complaint categories based on themes you find.
 - Prioritise categories by frequency × severity.
-- Regulatory areas (flag as true): payments, data privacy, KYC, lending terms, refunds, account access.
-- ai_recommendation must be one concrete, actionable sentence for the product team.
-- quotes: pick the 2-3 most representative quotes from the reviews above (copy exactly).
-- avg_severity: 0.0 (mild frustration) to 1.0 (critical: financial loss, regulatory complaint).
+- Regulatory areas (flag true): payments, data privacy, KYC, lending terms, refunds, account access.
+- ai_recommendation: one concrete, actionable sentence for the product team.
+- quotes: pick the 2-3 most representative quotes. Copy the text exactly as written.
+  IMPORTANT: for each quote, include "review_id" — the number in brackets before that review.
+- avg_severity: 0.0 (mild) to 1.0 (critical: financial loss, regulatory complaint).
 
-Respond with ONLY a valid JSON object in this exact shape:
+Respond with ONLY a valid JSON object:
 {
   "categories": [
     {
@@ -70,7 +91,13 @@ Respond with ONLY a valid JSON object in this exact shape:
       "regulatory_flag": boolean,
       "ai_recommendation": "string",
       "quotes": [
-        { "text": "string", "source": "string", "date": "string", "rating": number | null }
+        {
+          "text": "string (exact quote from review)",
+          "source": "string (play_store | app_store | reddit | twitter)",
+          "date": "string",
+          "rating": number | null,
+          "review_id": number
+        }
       ]
     }
   ]
@@ -89,7 +116,6 @@ Respond with ONLY a valid JSON object in this exact shape:
 
   const rawCategories: RawCategory[] = raw.categories ?? [];
 
-  // Compute priority scores using our scoring formula
   return rawCategories.map((cat) => ({
     ...cat,
     score: computePriorityScore({
@@ -103,6 +129,8 @@ Respond with ONLY a valid JSON object in this exact shape:
       source: toSource(q.source),
       date:   q.date,
       rating: q.rating ?? undefined,
+      // Attach the source URL via the review_id Groq returned
+      url:    q.review_id != null ? (urlMap.get(q.review_id) || undefined) : undefined,
     })),
   }));
 }
@@ -170,7 +198,7 @@ export async function generateCompetitiveInsight(
   const summaries = companies.map((company) => {
     const snap = snapshots.find((s) => s.company_id === company.id);
     if (!snap) return "";
-    const top = snap.categories[0];
+    const top        = snap.categories[0];
     const regulatory = snap.categories.filter((c) => c.regulatory_flag).length;
     return `${company.name}: health ${snap.health_score}/100, rating ${snap.avg_rating}/5, top issue "${top?.name}" (${top?.score}/100), ${regulatory} regulatory categories`;
   }).filter(Boolean).join("\n");

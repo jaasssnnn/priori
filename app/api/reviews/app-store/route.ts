@@ -51,6 +51,7 @@ export async function GET(request: Request) {
         rating: r.rating,
         date:   new Date(r.date).toISOString().split("T")[0],
         author: r.userName,
+        url:    `https://apps.apple.com/in/app/id${numericId}`,
       }));
 
     return NextResponse.json({ reviews: mapped, total: mapped.length });

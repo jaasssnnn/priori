@@ -31,6 +31,8 @@ export async function GET(request: Request) {
         rating: r.score,
         date:   new Date(r.date).toISOString().split("T")[0],
         author: r.userName,
+        // Links to the app's reviews page — individual Play Store reviews can't be deep-linked
+        url: `https://play.google.com/store/apps/details?id=${appId}&showAllReviews=true`,
       }));
 
     return NextResponse.json({ reviews, total: reviews.length });

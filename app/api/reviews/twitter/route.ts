@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     if (!res.ok) throw new Error(`Twitter API ${res.status}`);
 
     const json = await res.json() as {
-      data?: Array<{ text: string; created_at: string }>;
+      data?: Array<{ id: string; text: string; created_at: string; author_id: string }>;
     };
 
     const reviews = (json.data ?? [])
@@ -32,6 +32,7 @@ export async function GET(request: Request) {
         text:   t.text,
         source: "twitter",
         date:   new Date(t.created_at).toISOString().split("T")[0],
+        url:    `https://twitter.com/i/web/status/${t.id}`,
       }));
 
     return NextResponse.json({ reviews, total: reviews.length });
