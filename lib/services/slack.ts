@@ -140,12 +140,9 @@ export async function sendSlackMessage(
   const res = await fetch("/api/slack/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      channel: channelId,
-      message,
-      access_token: connection?.access_token,
-    }),
+    body: JSON.stringify({ channel: channelId, message }),
   });
+  if (!res.ok) return { ok: false };
   return res.json();
 }
 

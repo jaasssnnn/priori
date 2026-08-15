@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   MessageSquare, Mail, Bell, Trash2, CheckCircle2,
-  AlertCircle, ChevronRight, Loader2, Eye,
+  AlertCircle, ChevronRight, Loader2, Eye, XCircle,
 } from "lucide-react";
-import { getSlackConnection, buildAssignmentMessage } from "@/lib/services/slack";
+import { buildAssignmentMessage } from "@/lib/services/slack";
 import { MOCK_ACTION_ITEMS } from "@/lib/mock/workflows";
 import { useApp } from "@/providers/AppProvider";
-import type { SlackConnection, SlackMessage } from "@/types";
+import type { SlackConnection, SlackChannel, SlackMessage } from "@/types";
 import { cn } from "@/lib/utils";
 
 // ─── Slack Block Kit renderer ──────────────────────────────────────────────────
@@ -21,18 +22,14 @@ function SlackMessagePreview({ message }: { message: SlackMessage }) {
         <span className="text-[11px] font-medium text-slate-300">Priori Bot</span>
         <span className="rounded bg-[#4A154B]/30 px-1.5 py-0.5 text-[9px] font-semibold text-violet-300">APP</span>
       </div>
-      <div className="p-4">
+      <div className="p-4 space-y-2">
         <p className="text-slate-400 text-[10px] mb-3">{message.text}</p>
         {message.blocks.map((block, i) => {
-          if (block.type === "header") {
-            return (
-              <p key={i} className="font-bold text-sm text-white mb-2">{block.text?.text}</p>
-            );
-          }
-          if (block.type === "divider") {
+          if (block.type === "header")
+            return <p key={i} className="font-bold text-sm text-white mb-2">{block.text?.text}</p>;
+          if (block.type === "divider")
             return <div key={i} className="h-px bg-white/10 my-2" />;
-          }
-          if (block.type === "section" && block.fields) {
+          if (block.type === "section" && "fields" in block && block.fields) {
             return (
               <div key={i} className="grid grid-cols-2 gap-x-6 gap-y-1.5 mb-3">
                 {block.fields.map((f, j) => {
@@ -47,30 +44,18 @@ function SlackMessagePreview({ message }: { message: SlackMessage }) {
               </div>
             );
           }
-          if (block.type === "section" && block.text) {
-            return (
-              <p key={i} className="text-xs text-slate-300 mb-3 leading-relaxed">
-                {block.text.text.replace(/\*([^*]+)\*/g, "$1")}
-              </p>
-            );
-          }
-          if (block.type === "actions") {
+          if (block.type === "section" && "text" in block && block.text)
+            return <p key={i} className="text-xs text-slate-300 mb-3 leading-relaxed">{block.text.text.replace(/\*([^*]+)\*/g, "$1")}</p>;
+          if (block.type === "actions" && "elements" in block)
             return (
               <div key={i} className="flex gap-2">
-                {"elements" in block && block.elements?.map((el, j) => (
-                  <span
-                    key={j}
-                    className={cn(
-                      "rounded px-3 py-1.5 text-[11px] font-semibold cursor-default",
-                      el.style === "primary" ? "bg-[#007a5a] text-white" : "bg-white/10 text-slate-200"
-                    )}
-                  >
+                {block.elements?.map((el, j) => (
+                  <span key={j} className={cn("rounded px-3 py-1.5 text-[11px] font-semibold cursor-default", el.style === "primary" ? "bg-[#007a5a] text-white" : "bg-white/10 text-slate-200")}>
                     {el.text?.text}
                   </span>
                 ))}
               </div>
             );
-          }
           return null;
         })}
       </div>
@@ -78,13 +63,10 @@ function SlackMessagePreview({ message }: { message: SlackMessage }) {
   );
 }
 
-// ─── Section card ────────────────────────────────────────────────────────────
+// ─── Section card ─────────────────────────────────────────────────────────────
 
 function Section({ title, description, icon: Icon, children }: {
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  children: React.ReactNode;
+  title: string; description: string; icon: React.ElementType; children: React.ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
@@ -104,28 +86,13 @@ function Section({ title, description, icon: Icon, children }: {
 
 // ─── Toggle switch ────────────────────────────────────────────────────────────
 
-function Toggle({ checked, onChange, label }: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
+function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <label className="flex items-center justify-between cursor-pointer">
       <span className="text-sm text-slate-700">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          "relative h-5 w-9 rounded-full transition-colors duration-200",
-          checked ? "bg-indigo-600" : "bg-slate-200"
-        )}
-      >
-        <span className={cn(
-          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200",
-          checked ? "translate-x-4" : "translate-x-0.5"
-        )} />
+      <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
+        className={cn("relative h-5 w-9 rounded-full transition-colors duration-200", checked ? "bg-indigo-600" : "bg-slate-200")}>
+        <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200", checked ? "translate-x-4" : "translate-x-0.5")} />
       </button>
     </label>
   );
@@ -137,38 +104,73 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 export default function SettingsClient() {
   const { watchlist, removeFromWatchlist } = useApp();
+  const searchParams = useSearchParams();
+  const slackStatus  = searchParams.get("slack"); // "connected" | "error" | null
 
   // Slack state
-  const [slackConn, setSlackConn]         = useState<SlackConnection | null>(null);
-  const [slackLoading, setSlackLoading]   = useState(true);
-  const [previewMsg, setPreviewMsg]       = useState<SlackMessage | null>(null);
-  const [showPreview, setShowPreview]     = useState(false);
-  const [defaultChannel, setDefaultChannel] = useState("C0MOCK0001");
+  const [slackConn, setSlackConn]           = useState<SlackConnection | null>(null);
+  const [slackLoading, setSlackLoading]     = useState(true);
+  const [channels, setChannels]             = useState<SlackChannel[]>([]);
+  const [defaultChannel, setDefaultChannel] = useState("");
+  const [previewMsg, setPreviewMsg]         = useState<SlackMessage | null>(null);
+  const [showPreview, setShowPreview]       = useState(false);
+  const [disconnecting, setDisconnecting]   = useState(false);
+  const [savingChannel, setSavingChannel]   = useState(false);
 
   // Email state
-  const [emailEnabled, setEmailEnabled]   = useState(true);
-  const [emailAddr, setEmailAddr]         = useState("jasonabhishek897@gmail.com");
-  const [frequency, setFrequency]         = useState<"instant" | "daily_digest">("instant");
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [emailAddr, setEmailAddr]       = useState("jasonabhishek897@gmail.com");
+  const [frequency, setFrequency]       = useState<"instant" | "daily_digest">("instant");
 
   // Notification toggles
-  const [spikeAlerts, setSpikeAlerts]     = useState(true);
-  const [trendAlerts, setTrendAlerts]     = useState(true);
+  const [spikeAlerts, setSpikeAlerts]   = useState(true);
+  const [trendAlerts, setTrendAlerts]   = useState(true);
   const [overdueNudges, setOverdueNudges] = useState(true);
 
   const [saved, setSaved]   = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Load Slack connection
   useEffect(() => {
-    import("@/lib/services/slack").then(({ getSlackConnection }) =>
-      getSlackConnection().then((c) => { setSlackConn(c); setSlackLoading(false); })
-    );
-  }, []);
+    fetch("/api/slack/connection")
+      .then((r) => r.json())
+      .then((conn: SlackConnection | null) => {
+        setSlackConn(conn);
+        setSlackLoading(false);
+        if (conn) {
+          setDefaultChannel(conn.default_channel ?? "");
+          // Fetch channel list
+          fetch("/api/slack/channels")
+            .then((r) => r.json())
+            .then((chs: SlackChannel[]) => setChannels(chs));
+        }
+      })
+      .catch(() => setSlackLoading(false));
+  }, [slackStatus]); // re-fetch after OAuth redirect
 
   function handlePreview() {
     const sampleItem = MOCK_ACTION_ITEMS[0];
-    const msg = buildAssignmentMessage(sampleItem, BASE_URL);
-    setPreviewMsg(msg);
+    setPreviewMsg(buildAssignmentMessage(sampleItem, BASE_URL));
     setShowPreview(true);
+  }
+
+  async function handleDisconnect() {
+    setDisconnecting(true);
+    await fetch("/api/slack/connection", { method: "DELETE" });
+    setSlackConn(null);
+    setChannels([]);
+    setDisconnecting(false);
+  }
+
+  async function handleSaveChannel(channelId: string) {
+    setDefaultChannel(channelId);
+    setSavingChannel(true);
+    await fetch("/api/slack/connection", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ default_channel: channelId }),
+    });
+    setSavingChannel(false);
   }
 
   async function handleSave() {
@@ -189,60 +191,74 @@ export default function SettingsClient() {
         </p>
       </div>
 
+      {/* OAuth result banner */}
+      {slackStatus === "connected" && (
+        <div className="flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 p-4">
+          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+          <p className="text-sm font-semibold text-green-800">Slack workspace connected successfully!</p>
+        </div>
+      )}
+      {slackStatus === "error" && (
+        <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
+          <XCircle className="h-5 w-5 text-red-500 shrink-0" />
+          <p className="text-sm font-semibold text-red-700">Slack connection failed — please try again.</p>
+        </div>
+      )}
+
       {/* ── Slack Integration ─────────────────────────────────────────── */}
-      <Section
-        title="Slack Integration"
-        description="Connect your workspace to receive alerts and push action item assignments"
-        icon={MessageSquare}
-      >
+      <Section title="Slack Integration" description="Connect your workspace to receive alerts and push action item assignments" icon={MessageSquare}>
         {slackLoading ? (
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
         ) : slackConn ? (
           <div className="space-y-4">
-            {/* Connected status */}
             <div className="flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 p-4">
               <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-green-800">Connected to {slackConn.team_name}</p>
                 <p className="text-xs text-green-600 mt-0.5">Workspace ID: {slackConn.team_id}</p>
               </div>
-              <button className="ml-auto text-xs text-red-500 hover:underline">Disconnect</button>
-            </div>
-
-            {/* Default channel picker */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Default alert channel
-              </label>
-              <select
-                value={defaultChannel}
-                onChange={(e) => setDefaultChannel(e.target.value)}
-                className="w-full h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:border-indigo-400 focus:outline-none"
+              <button
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+                className="ml-auto text-xs text-red-500 hover:underline disabled:opacity-50"
               >
-                {slackConn.channels?.map((ch) => (
-                  <option key={ch.id} value={ch.id}>#{ch.name}</option>
-                ))}
-              </select>
+                {disconnecting ? "Disconnecting…" : "Disconnect"}
+              </button>
             </div>
 
-            {/* Preview button */}
-            <button
-              onClick={handlePreview}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
+            {/* Channel picker */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Default alert channel</label>
+              {channels.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <select
+                    value={defaultChannel}
+                    onChange={(e) => handleSaveChannel(e.target.value)}
+                    className="flex-1 h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:border-indigo-400 focus:outline-none"
+                  >
+                    <option value="">Select a channel…</option>
+                    {channels.map((ch) => (
+                      <option key={ch.id} value={ch.id}>#{ch.name}</option>
+                    ))}
+                  </select>
+                  {savingChannel && <Loader2 className="h-4 w-4 animate-spin text-slate-400 shrink-0" />}
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400">No channels found — ensure your Slack app has the channels:read scope.</p>
+              )}
+            </div>
+
+            {/* Preview */}
+            <button onClick={handlePreview} className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
               <Eye className="h-4 w-4" /> Preview Slack Message
             </button>
-
-            {/* Slack message preview */}
             {showPreview && previewMsg && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-semibold text-slate-500">Action Item Assignment — Block Kit Preview</p>
-                  <button onClick={() => setShowPreview(false)} className="text-xs text-slate-400 hover:text-slate-600">
-                    Hide
-                  </button>
+                  <button onClick={() => setShowPreview(false)} className="text-xs text-slate-400 hover:text-slate-600">Hide</button>
                 </div>
                 <SlackMessagePreview message={previewMsg} />
               </div>
@@ -257,66 +273,37 @@ export default function SettingsClient() {
                 <p className="text-xs text-amber-600 mt-0.5">Connect your workspace to receive alerts and push assignments.</p>
               </div>
             </div>
-            <button
-              onClick={() => alert("OAuth flow — wired in Phase 6 when Slack app credentials are configured.")}
-              className="flex items-center gap-2 rounded-xl bg-[#4A154B] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#3b1039] transition-colors"
+            <a
+              href="/api/slack/auth"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#4A154B] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#3b1039] transition-colors"
             >
               <MessageSquare className="h-4 w-4" /> Connect Slack Workspace
-            </button>
+            </a>
           </div>
         )}
       </Section>
 
       {/* ── Email Notifications ───────────────────────────────────────── */}
-      <Section
-        title="Email Notifications"
-        description="Configure alert delivery to your email address"
-        icon={Mail}
-      >
+      <Section title="Email Notifications" description="Configure alert delivery to your email address" icon={Mail}>
         <div className="space-y-4">
-          <Toggle
-            checked={emailEnabled}
-            onChange={setEmailEnabled}
-            label="Email notifications enabled"
-          />
-
+          <Toggle checked={emailEnabled} onChange={setEmailEnabled} label="Email notifications enabled" />
           {emailEnabled && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  value={emailAddr}
-                  onChange={(e) => setEmailAddr(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                />
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email address</label>
+                <input type="email" value={emailAddr} onChange={(e) => setEmailAddr(e.target.value)}
+                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">
-                  Alert frequency
-                </label>
+                <label className="block text-xs font-semibold text-slate-700 mb-2">Alert frequency</label>
                 <div className="flex gap-3">
                   {(["instant", "daily_digest"] as const).map((f) => (
-                    <label key={f} className={cn(
-                      "flex-1 flex items-center gap-2 rounded-xl border px-4 py-3 cursor-pointer transition-colors",
-                      frequency === f ? "border-indigo-400 bg-indigo-50" : "border-slate-200 hover:border-slate-300"
-                    )}>
-                      <input
-                        type="radio"
-                        checked={frequency === f}
-                        onChange={() => setFrequency(f)}
-                        className="accent-indigo-600"
-                      />
+                    <label key={f} className={cn("flex-1 flex items-center gap-2 rounded-xl border px-4 py-3 cursor-pointer transition-colors",
+                      frequency === f ? "border-indigo-400 bg-indigo-50" : "border-slate-200 hover:border-slate-300")}>
+                      <input type="radio" checked={frequency === f} onChange={() => setFrequency(f)} className="accent-indigo-600" />
                       <div>
-                        <p className="text-sm font-medium text-slate-800 capitalize">
-                          {f === "instant" ? "Instant" : "Daily digest"}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {f === "instant" ? "As soon as spike is detected" : "One summary email per day"}
-                        </p>
+                        <p className="text-sm font-medium text-slate-800">{f === "instant" ? "Instant" : "Daily digest"}</p>
+                        <p className="text-xs text-slate-400">{f === "instant" ? "As soon as spike is detected" : "One summary email per day"}</p>
                       </div>
                     </label>
                   ))}
@@ -328,24 +315,16 @@ export default function SettingsClient() {
       </Section>
 
       {/* ── Alert Preferences ─────────────────────────────────────────── */}
-      <Section
-        title="Alert Preferences"
-        description="Choose which types of alerts you want to receive"
-        icon={Bell}
-      >
+      <Section title="Alert Preferences" description="Choose which types of alerts you want to receive" icon={Bell}>
         <div className="space-y-4">
-          <Toggle checked={spikeAlerts}    onChange={setSpikeAlerts}    label="Complaint volume spikes (≥30% WoW)" />
-          <Toggle checked={trendAlerts}    onChange={setTrendAlerts}    label="New complaint patterns detected"     />
-          <Toggle checked={overdueNudges}  onChange={setOverdueNudges}  label="Overdue action item nudges"          />
+          <Toggle checked={spikeAlerts}   onChange={setSpikeAlerts}   label="Complaint volume spikes (≥30% WoW)" />
+          <Toggle checked={trendAlerts}   onChange={setTrendAlerts}   label="New complaint patterns detected" />
+          <Toggle checked={overdueNudges} onChange={setOverdueNudges} label="Overdue action item nudges" />
         </div>
       </Section>
 
       {/* ── Watchlist Management ──────────────────────────────────────── */}
-      <Section
-        title="Watchlist Management"
-        description={`${watchlist.length} companies being tracked`}
-        icon={ChevronRight}
-      >
+      <Section title="Watchlist Management" description={`${watchlist.length} companies being tracked`} icon={ChevronRight}>
         {watchlist.length === 0 ? (
           <p className="text-sm text-slate-400">No companies on your watchlist yet.</p>
         ) : (
@@ -354,15 +333,14 @@ export default function SettingsClient() {
               <li key={company.id} className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3">
                 <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-slate-100">
                   {company.icon_url
+                    // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={company.icon_url} alt={company.name} className="h-full w-full object-cover" />
                     : <div className="flex h-full w-full items-center justify-center text-xs font-bold text-slate-400 bg-slate-50">{company.name[0]}</div>
                   }
                 </div>
                 <span className="text-sm font-medium text-slate-800 flex-1">{company.name}</span>
-                <button
-                  onClick={() => removeFromWatchlist(company.id)}
-                  className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors"
-                >
+                <button onClick={() => removeFromWatchlist(company.id)}
+                  className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 transition-colors">
                   <Trash2 className="h-3.5 w-3.5" /> Remove
                 </button>
               </li>
@@ -371,18 +349,11 @@ export default function SettingsClient() {
         )}
       </Section>
 
-      {/* ── Save button ───────────────────────────────────────────────── */}
+      {/* ── Save ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-end gap-3 pb-4">
-        {saved && (
-          <div className="flex items-center gap-1.5 text-sm text-green-600">
-            <CheckCircle2 className="h-4 w-4" /> Settings saved
-          </div>
-        )}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
-        >
+        {saved && <div className="flex items-center gap-1.5 text-sm text-green-600"><CheckCircle2 className="h-4 w-4" /> Settings saved</div>}
+        <button onClick={handleSave} disabled={saving}
+          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors">
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {saving ? "Saving…" : "Save Settings"}
         </button>
