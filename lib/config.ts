@@ -17,8 +17,8 @@ export const config = {
   USE_MOCK_AI:
     !hasGroq || process.env.NEXT_PUBLIC_USE_MOCK_AI === "true",
 
-  /** App store scrapers + Twitter (Phase 6-c) */
-  USE_MOCK_SCRAPERS: true,
+  /** App store scrapers + Twitter (Phase 6-c) — packages installed, always real */
+  USE_MOCK_SCRAPERS: false,
 
   /** Slack integration (Phase 6-d) */
   USE_MOCK_SLACK: !hasSlack,

@@ -17,9 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DashboardPage({ params }: Props) {
   const { companyId } = await params;
 
-  const [company, snapshot, previousSnapshot] = await Promise.all([
-    getCompany(companyId),
-    getSnapshot(companyId),
+  const company = await getCompany(companyId);
+  const [snapshot, previousSnapshot] = await Promise.all([
+    getSnapshot(companyId, company?.name),
     getPreviousSnapshot(companyId),
   ]);
 

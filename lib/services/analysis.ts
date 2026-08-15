@@ -5,7 +5,10 @@ import type { Snapshot } from "@/types";
 // Full URL required when called from server components
 const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
-export async function getSnapshot(companyId: string): Promise<Snapshot | null> {
+export async function getSnapshot(
+  companyId: string,
+  companyName?: string
+): Promise<Snapshot | null> {
   if (config.USE_MOCK_AI && config.USE_MOCK_SCRAPERS) {
     await delay(600);
     return getMockSnapshot(companyId) ?? null;
@@ -14,8 +17,7 @@ export async function getSnapshot(companyId: string): Promise<Snapshot | null> {
     const res = await fetch(`${BASE}/api/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyId }),
-      // Don't cache — each call decides freshness via Supabase TTL
+      body: JSON.stringify({ companyId, companyName }),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`Analyze ${res.status}`);
