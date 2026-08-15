@@ -3,10 +3,12 @@
 import { Search, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useApp } from "@/providers/AppProvider";
 
 export default function Topbar() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const { unreadAlertCount } = useApp();
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -37,11 +39,14 @@ export default function Topbar() {
         <button
           onClick={() => router.push("/alerts")}
           className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
-          aria-label="Alerts"
+          aria-label={`Alerts${unreadAlertCount > 0 ? ` (${unreadAlertCount} unread)` : ""}`}
         >
           <Bell className="h-4.5 w-4.5" />
-          {/* Unread indicator */}
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+          {unreadAlertCount > 0 && (
+            <span className="absolute right-1 top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+              {unreadAlertCount > 9 ? "9+" : unreadAlertCount}
+            </span>
+          )}
         </button>
       </div>
     </header>

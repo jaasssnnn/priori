@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { useApp } from "@/providers/AppProvider";
+import { useDisplayName } from "@/lib/hooks/useCurrentUser";
 import type { ComplaintCategory, Company, AuditDecision } from "@/types";
 
 interface Props {
@@ -23,19 +24,20 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
   const [decision, setDecision]   = useState<AuditDecision>("acted_on");
   const [reasoning, setReasoning] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const displayName = useDisplayName();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     try {
       await logDecision({
-        company_id: company.id,
+        company_id:   company.id,
         company_name: company.name,
         company_icon: company.icon_url,
         category_name: category.name,
         decision,
         reasoning,
-        decided_by: "Jason Abhishek",
+        decided_by:   displayName || "Unknown",
         priority_score: category.score,
       });
       setTimeout(() => {

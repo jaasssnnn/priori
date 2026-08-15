@@ -22,7 +22,7 @@ export async function markAlertRead(id: string): Promise<void> {
     _mockAlerts = _mockAlerts.map((a) => (a.id === id ? { ...a, read: true } : a));
     return;
   }
-  await fetch(`/api/alerts/${id}/read`, { method: "POST" });
+  await fetch(`/api/alerts/${id}`, { method: "POST" }); // POST = mark read, DELETE = dismiss
 }
 
 export async function dismissAlert(id: string): Promise<void> {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import {
   LayoutDashboard,
   Kanban,
@@ -28,6 +29,15 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const user     = useCurrentUser();
+
+  const displayName = (
+    (user?.user_metadata?.full_name as string | undefined) ??
+    (user?.user_metadata?.name as string | undefined) ??
+    user?.email?.split("@")[0] ??
+    "You"
+  );
+  const initial = displayName[0]?.toUpperCase() ?? "?";
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-60 flex flex-col bg-slate-950 text-white z-40">
@@ -74,11 +84,11 @@ export default function Sidebar() {
       <div className="border-t border-slate-800 px-4 py-4">
         <div className="flex items-center gap-2.5">
           <div className="h-7 w-7 rounded-full bg-indigo-500/20 flex items-center justify-center">
-            <span className="text-xs font-semibold text-indigo-300">J</span>
+            <span className="text-xs font-semibold text-indigo-300">{initial}</span>
           </div>
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-slate-200">Jason Abhishek</p>
-            <p className="truncate text-[10px] text-slate-500">Free plan</p>
+            <p className="truncate text-xs font-medium text-slate-200">{displayName}</p>
+            <p className="truncate text-[10px] text-slate-500">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>
