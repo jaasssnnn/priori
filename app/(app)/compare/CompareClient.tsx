@@ -35,7 +35,7 @@ function SharedCategoryRow({
                   "text-xs font-bold",
                   !cat ? "text-slate-300" :
                   cat.score >= 70 ? "text-red-600" :
-                  cat.score >= 40 ? "text-orange-500" : "text-green-600"
+                  cat.score >= 40 ? "text-orange-500" : "text-[#1a3a2e]"
                 )}>
                   {cat ? cat.score : "—"}
                 </span>
@@ -45,15 +45,15 @@ function SharedCategoryRow({
                   <div
                     className={cn("h-full rounded-full",
                       cat.score >= 70 ? "bg-red-500" :
-                      cat.score >= 40 ? "bg-orange-400" : "bg-green-500"
+                      cat.score >= 40 ? "bg-orange-400" : "bg-[#1a3a2e]"
                     )}
                     style={{ width: `${cat.score}%` }}
                   />
                 )}
               </div>
-              {cat?.regulatory_flag && (
+              {cat?.risk_relevance && (
                 <div className="flex items-center gap-1 mt-1 text-[9px] text-violet-600">
-                  <ShieldAlert className="h-2.5 w-2.5" /> Regulatory
+                  <ShieldAlert className="h-2.5 w-2.5" /> Risk relevance
                 </div>
               )}
             </div>
@@ -74,12 +74,12 @@ function CompanyColumn({ company, snapshot, onRemove }: {
   const TrendIcon = Minus; // trend comparison added in Phase 6 when real snapshots flow
 
   const scoreColor =
-    snapshot.health_score >= 70 ? "text-green-600" :
+    snapshot.health_score >= 70 ? "text-[#1a3a2e]" :
     snapshot.health_score >= 40 ? "text-amber-600" :
     "text-red-600";
 
   const scoreBg =
-    snapshot.health_score >= 70 ? "bg-green-50 border-green-200" :
+    snapshot.health_score >= 70 ? "bg-[#1a3a2e]/5 border-[#1a3a2e]/20" :
     snapshot.health_score >= 40 ? "bg-amber-50 border-amber-200" :
     "bg-red-50 border-red-200";
 
@@ -123,17 +123,17 @@ function CompanyColumn({ company, snapshot, onRemove }: {
           </div>
           <div className="rounded-lg bg-slate-50 px-2 py-2 text-center">
             <p className="text-sm font-bold text-slate-700">
-              {snapshot.categories.filter((c) => c.regulatory_flag).length}
+              {snapshot.categories.filter((c) => c.risk_relevance).length}
             </p>
-            <p className="text-[10px] text-slate-400">Regulatory</p>
+            <p className="text-[10px] text-slate-400">Risk flags</p>
           </div>
         </div>
       </div>
 
       {/* View dashboard link */}
       <Link
-        href={`/dashboard/${company.id}`}
-        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 transition-colors"
+        href={`/companies/${company.id}`}
+        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600 hover:bg-[#1a3a2e]/5 hover:text-[#1a3a2e] hover:border-[#1a3a2e]/20 transition-colors"
       >
         Full Dashboard <TrendIcon className="h-3 w-3" />
       </Link>
@@ -211,7 +211,7 @@ export default function CompareClient() {
         <h1 className="text-2xl font-bold text-slate-900">Competitor Benchmarking</h1>
         <p className="mt-1 text-sm text-slate-500">
           Compare up to 3 companies side by side on health score, complaint categories, ratings,
-          and regulatory exposure.
+          and risk relevance.
         </p>
       </div>
 
@@ -229,7 +229,7 @@ export default function CompareClient() {
                 className={cn(
                   "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors disabled:opacity-40",
                   selected
-                    ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                    ? "border-[#1a3a2e]/50 bg-[#1a3a2e]/5 text-[#1a3a2e]"
                     : "border-slate-200 text-slate-600 hover:border-slate-300"
                 )}
               >
@@ -266,18 +266,18 @@ export default function CompareClient() {
 
           {/* AI Insight */}
           {(insight || insightLoading) && (
-            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-violet-50 p-6 mb-6">
+            <div className="rounded-2xl border border-[#1a3a2e]/15 bg-gradient-to-br from-[#1a3a2e]/5 to-[#1a3a2e]/[0.03] p-6 mb-6">
               <div className="flex items-center gap-2 mb-3">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a3a2e]">
                   <Sparkles className="h-3.5 w-3.5 text-white" />
                 </div>
-                <p className="text-sm font-semibold text-indigo-900">AI Competitive Insight</p>
-                <span className="ml-auto rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-semibold text-indigo-600">
+                <p className="text-sm font-semibold text-[#1a3a2e]">AI Competitive Insight</p>
+                <span className="ml-auto rounded-full bg-[#1a3a2e]/10 px-2 py-0.5 text-[10px] font-semibold text-[#1a3a2e]">
                   Groq · llama-3.3-70b
                 </span>
               </div>
               {insightLoading ? (
-                <div className="flex items-center gap-2 text-sm text-indigo-400">
+                <div className="flex items-center gap-2 text-sm text-[#1a3a2e]/70">
                   <Loader2 className="h-4 w-4 animate-spin" /> Generating insight…
                 </div>
               ) : (

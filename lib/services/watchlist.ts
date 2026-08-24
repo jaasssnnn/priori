@@ -62,15 +62,41 @@ export function isOnWatchlist(companyId: string): boolean {
   return _mockWatchlist.includes(companyId);
 }
 
-/** Spike detection logic (reused by real cron in Phase 6) */
-export function detectSpike(currentCount: number, previousCount: number): boolean {
-  if (previousCount === 0) return false;
-  return (currentCount - previousCount) / previousCount > 0.3;
+/**
+ * Spike detection — guards against division by zero and suppresses noise from
+ * tiny counts (e.g. 1 → 2 is not a spike worth alerting on).
+ *
+ * Rules:
+ *   1. At least 10 complaints in the current snapshot (minimum signal threshold)
+ *   2. Smoothed growth rate > 30%  (α=5 prevents zero-division and 1→2 false positives)
+ *   3. Rate delta ≥ 5 percentage points per 100 reviews  (raw-count comparisons
+ *      are misleading when snapshot sizes differ)
+ */
+export function detectSpike(
+  currentCount:  number,
+  previousCount: number,
+  currentTotal:  number = 100,
+  previousTotal: number = 100,
+): boolean {
+  if (currentCount < 10) return false;
+
+  const α      = 5;
+  const growth = (currentCount + α) / (previousCount + α) - 1;
+  if (growth <= 0.3) return false;
+
+  const currentRate  = currentCount  / Math.max(currentTotal,  1);
+  const previousRate = previousCount / Math.max(previousTotal, 1);
+
+  return (currentRate - previousRate) >= 0.05;
 }
 
-/** New trend: category not in previous snapshot with ≥5 complaints */
-export function detectNewTrend(categoryName: string, currentCount: number, previousCategoryNames: string[]): boolean {
-  return !previousCategoryNames.includes(categoryName) && currentCount >= 5;
+/** New trend: category absent from previous snapshot with ≥10 complaints */
+export function detectNewTrend(
+  categoryName:          string,
+  currentCount:          number,
+  previousCategoryNames: string[],
+): boolean {
+  return !previousCategoryNames.includes(categoryName) && currentCount >= 10;
 }
 
 function deriveTrend(

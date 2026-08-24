@@ -1,6 +1,8 @@
 // ─── Shared enums ────────────────────────────────────────────────────────────
 
-export type DataSource = "play_store" | "app_store" | "reddit" | "twitter";
+export type { Industry } from "@/lib/industries";
+
+export type DataSource = "play_store" | "app_store" | "reddit" | "twitter" | "instagram" | "youtube" | "facebook";
 
 export type ActionItemStatus = "open" | "in_progress" | "resolved" | "closed";
 
@@ -22,6 +24,8 @@ export interface Company {
   name: string;
   icon_url: string;
   added_at: string;      // timestamptz ISO string
+  industry?: import("@/lib/industries").Industry;
+  product_type?: string; // e.g. "Mobile app", "Web platform"
   // denormalised for display
   developer?: string;
   avg_rating?: number;
@@ -39,13 +43,22 @@ export interface Quote {
 
 export interface ComplaintCategory {
   name: string;
-  score: number;         // 0-100, computed by scoring formula
+  score: number;              // 0-100, computed by scoring formula
   complaint_count: number;
-  avg_severity: number;  // 0-1
-  regulatory_flag: boolean;
-  quotes: Quote[];       // top 3+ representative quotes
+  avg_severity: number;       // 0-1
+  /** Whether this category has elevated risk relevance (replaces finance-only regulatory_flag). */
+  risk_relevance: boolean;
+  /** Specific risk dimensions applicable to this category (e.g. "Payments", "Delivery reliability"). */
+  risk_dimensions?: string[];
+  quotes: Quote[];            // top 3+ representative quotes
   ai_recommendation: string;
   source_breakdown?: Partial<Record<DataSource, number>>;
+  /** Canonical taxonomy category if different from AI-generated name. */
+  canonical_category?: string;
+  /** Confidence in the AI classification (0–1). */
+  confidence?: number;
+  /** @deprecated use risk_relevance */
+  regulatory_flag?: boolean;
 }
 
 export interface SentimentTrendPoint {

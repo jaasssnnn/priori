@@ -14,7 +14,7 @@ interface Props {
 }
 
 const DECISIONS: { value: AuditDecision; label: string; description: string }[] = [
-  { value: "acted_on",     label: "Act on it",     description: "Create an action item and assign an owner to resolve this." },
+  { value: "acted_on",     label: "Act on it",     description: "Record your intent to act on this issue. Then use 'Create Action Item' on the complaint card to assign and track the actual fix." },
   { value: "deprioritized",label: "Deprioritize",  description: "Acknowledge the issue but don't work on it now — too low-impact or low-urgency." },
   { value: "deferred",     label: "Defer",         description: "Revisit later — blocked by other priorities or timing." },
 ];
@@ -55,7 +55,7 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Log Decision</h2>
+            <h2 className="text-base font-semibold text-slate-900">Log Triage Decision</h2>
             <p className="text-xs text-slate-500 mt-0.5">
               {category.name} · {company.name} · Score {category.score}/100
             </p>
@@ -69,6 +69,11 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          {/* Context note */}
+          <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 text-[11px] text-slate-500 leading-relaxed">
+            This records a triage decision in the <span className="font-semibold text-slate-700">Audit Trail</span>. It does not create a work item — use <span className="font-semibold text-slate-700">Create Action Item</span> on the complaint card for that.
+          </div>
+
           {/* Decision selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-2">Decision *</label>
@@ -78,7 +83,7 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
                   key={d.value}
                   className={`flex items-start gap-3 rounded-xl border p-3.5 cursor-pointer transition-colors ${
                     decision === d.value
-                      ? "border-indigo-400 bg-indigo-50"
+                      ? "border-[#1a3a2e]/50 bg-[#1a3a2e]/5"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
@@ -88,7 +93,7 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
                     value={d.value}
                     checked={decision === d.value}
                     onChange={() => setDecision(d.value)}
-                    className="mt-0.5 accent-indigo-600"
+                    className="mt-0.5 accent-[#1a3a2e]"
                   />
                   <div>
                     <p className="text-sm font-medium text-slate-800">{d.label}</p>
@@ -108,7 +113,7 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
               required
               rows={3}
               placeholder="Why this decision? What context should future reviewers know?"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
             />
           </div>
 
@@ -123,7 +128,7 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-[#1a3a2e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#243f35] disabled:opacity-60 transition-colors"
             >
               {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {submitting ? "Logging…" : "Log Decision"}

@@ -100,7 +100,7 @@ export default function AuditClient() {
   if (auditLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function AuditClient() {
         <select
           value={filterCompany}
           onChange={(e) => setFilterCompany(e.target.value)}
-          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-indigo-400 focus:outline-none"
+          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
         >
           <option value="all">All companies</option>
           {companies.map(([id, name]) => (
@@ -164,7 +164,7 @@ export default function AuditClient() {
         <select
           value={filterDecision}
           onChange={(e) => setFilterDecision(e.target.value)}
-          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-indigo-400 focus:outline-none"
+          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
         >
           <option value="all">All decisions</option>
           {(Object.keys(DECISION_META) as AuditDecision[]).map((d) => (
@@ -178,14 +178,14 @@ export default function AuditClient() {
             type="date"
             value={filterFrom}
             onChange={(e) => setFilterFrom(e.target.value)}
-            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-indigo-400 focus:outline-none"
+            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
           />
           <span className="text-xs text-slate-400">to</span>
           <input
             type="date"
             value={filterTo}
             onChange={(e) => setFilterTo(e.target.value)}
-            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-indigo-400 focus:outline-none"
+            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
           />
         </div>
 
@@ -251,7 +251,7 @@ function AuditEntryCard({ entry }: { entry: AuditEntry }) {
                 "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
                 entry.priority_score >= 70 ? "bg-red-100 text-red-700" :
                 entry.priority_score >= 40 ? "bg-orange-100 text-orange-700" :
-                "bg-green-100 text-green-700"
+                "bg-[#1a3a2e]/10 text-[#1a3a2e]"
               )}>
                 {entry.priority_score}/100
               </span>

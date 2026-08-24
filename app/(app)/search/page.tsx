@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
-import SearchClient from "./SearchClient";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Search" };
-
-export default function SearchPage({
+export default async function SearchPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  return <SearchClient searchParamsPromise={searchParams} />;
+  const { q } = await searchParams;
+  redirect(q ? `/companies?q=${encodeURIComponent(q)}` : "/companies");
 }

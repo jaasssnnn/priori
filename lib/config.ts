@@ -31,3 +31,6 @@ export const config = {
 } as const;
 
 export type Config = typeof config;
+
+/** Public GitHub repo — update this when the repo is created */
+export const GITHUB_REPO_URL = "https://github.com/jaasssnnn/Priori";

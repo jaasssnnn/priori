@@ -4,91 +4,121 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import {
-  LayoutDashboard,
+  LayoutGrid,
+  Building2,
   Kanban,
   ScrollText,
   Bookmark,
   Bell,
   GitCompare,
   Settings,
-  Search,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { label: "Search",     href: "/search",     icon: Search },
-  { label: "Dashboard",  href: "/dashboard",  icon: LayoutDashboard },
-  { label: "Workflows",  href: "/workflows",  icon: Kanban },
-  { label: "Audit Trail",href: "/audit",      icon: ScrollText },
-  { label: "Watchlist",  href: "/watchlist",  icon: Bookmark },
-  { label: "Alerts",     href: "/alerts",     icon: Bell },
-  { label: "Compare",    href: "/compare",    icon: GitCompare },
-  { label: "Settings",   href: "/settings",   icon: Settings },
+const mainNav = [
+  { label: "Overview",    href: "/overview",   icon: LayoutGrid },
+  { label: "Companies",   href: "/companies",  icon: Building2  },
+  { label: "Workflows",   href: "/workflows",  icon: Kanban     },
+  { label: "Audit Trail", href: "/audit",      icon: ScrollText },
+  { label: "Watchlist",   href: "/watchlist",  icon: Bookmark   },
+  { label: "Alerts",      href: "/alerts",     icon: Bell       },
+  { label: "Compare",     href: "/compare",    icon: GitCompare },
 ];
 
-export default function Sidebar() {
-  const pathname = usePathname();
-  const user     = useCurrentUser();
+const generalNav = [
+  { label: "Settings", href: "/settings", icon: Settings },
+];
 
-  const displayName = (
+function NavLink({
+  label,
+  href,
+  icon: Icon,
+}: {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+}) {
+  const pathname = usePathname();
+  const active =
+    href === "/overview"
+      ? pathname === "/overview"
+      : pathname === href || pathname.startsWith(href + "/");
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-white text-[#1a3a2e] shadow-sm font-semibold"
+          : "text-white/60 hover:bg-[#243f35] hover:text-white"
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      {label}
+    </Link>
+  );
+}
+
+export default function Sidebar() {
+  const user = useCurrentUser();
+
+  const displayName =
     (user?.user_metadata?.full_name as string | undefined) ??
     (user?.user_metadata?.name as string | undefined) ??
     user?.email?.split("@")[0] ??
-    "You"
-  );
+    "You";
   const initial = displayName[0]?.toUpperCase() ?? "?";
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 flex flex-col bg-slate-950 text-white z-40">
+    <aside className="fixed left-0 top-0 h-screen w-60 flex flex-col bg-[#1a3a2e] text-white z-40">
       {/* Brand */}
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-800">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-          <Zap className="h-4 w-4 text-white" />
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#243f35]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#243f35]">
+          <img src="/logo.png" alt="" className="h-5 w-5 invert" />
         </div>
         <div>
           <span className="text-base font-bold tracking-tight">Priori</span>
-          <span className="ml-1.5 rounded-full bg-indigo-900/60 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
+          <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/60">
             BETA
           </span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
-        {navItems.map(({ label, href, icon: Icon }) => {
-          const active =
-            href === "/dashboard"
-              ? pathname.startsWith("/dashboard")
-              : pathname === href || pathname.startsWith(href + "/");
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <div>
+          <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+            Intelligence
+          </p>
+          <div className="space-y-0.5">
+            {mainNav.map((item) => (
+              <NavLink key={item.href} {...item} />
+            ))}
+          </div>
+        </div>
 
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                active
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          );
-        })}
+        <div>
+          <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+            General
+          </p>
+          <div className="space-y-0.5">
+            {generalNav.map((item) => (
+              <NavLink key={item.href} {...item} />
+            ))}
+          </div>
+        </div>
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-slate-800 px-4 py-4">
+      <div className="border-t border-[#243f35] px-4 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="h-7 w-7 rounded-full bg-indigo-500/20 flex items-center justify-center">
-            <span className="text-xs font-semibold text-indigo-300">{initial}</span>
+          <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center">
+            <span className="text-xs font-semibold text-white">{initial}</span>
           </div>
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-slate-200">{displayName}</p>
-            <p className="truncate text-[10px] text-slate-500">{user?.email ?? ""}</p>
+            <p className="truncate text-xs font-semibold text-white">{displayName}</p>
+            <p className="truncate text-[10px] text-white/40">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>

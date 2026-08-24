@@ -1,5 +1,5 @@
 import { config } from "@/lib/config";
-import { getMockCompany, searchMockCompanies } from "@/lib/mock/companies";
+import { getMockCompany, searchMockCompanies, MOCK_COMPANIES } from "@/lib/mock/companies";
 import type { Company } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -12,7 +12,12 @@ export async function searchCompanies(query: string): Promise<Company[]> {
   try {
     const res = await fetch(`${BASE}/api/search/company?q=${encodeURIComponent(query)}`);
     if (!res.ok) throw new Error(`Search ${res.status}`);
-    return res.json();
+    const results: Company[] = await res.json();
+    // Use local icons for known demo companies (CDN URLs can be unreliable)
+    return results.map((r) => {
+      const mock = MOCK_COMPANIES.find((m) => m.app_id === r.app_id);
+      return mock ? { ...r, icon_url: mock.icon_url } : r;
+    });
   } catch (err) {
     console.error("[companies] search failed, falling back to mock:", err);
     return searchMockCompanies(query);

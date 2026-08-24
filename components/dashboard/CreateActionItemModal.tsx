@@ -98,7 +98,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
                   value={selectedCompanyId}
                   onChange={(e) => setSelectedCompanyId(e.target.value)}
                   required
-                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 bg-white"
+                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20 bg-white"
                 >
                   {MOCK_COMPANIES.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
@@ -112,7 +112,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
                   onChange={(e) => setCategoryName(e.target.value)}
                   required
                   placeholder="e.g. Payment Failures"
-                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
                 />
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
                 onChange={(e) => setOwner(e.target.value)}
                 required
                 placeholder="e.g. Riya Sharma"
-                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
               />
             </div>
             <div>
@@ -149,7 +149,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
                 onChange={(e) => setDeadline(e.target.value)}
                 required
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
               />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
               required
               rows={4}
               placeholder="1. Investigate root cause&#10;2. Assign to engineering&#10;3. Deploy fix by deadline"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm resize-none focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
             />
           </div>
 
@@ -172,7 +172,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
               value={channel}
               onChange={(e) => setChannel(e.target.value)}
               placeholder="#channel-name"
-              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm font-mono focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full h-9 rounded-lg border border-slate-200 px-3 text-sm font-mono focus:border-[#1a3a2e]/50 focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/20"
             />
             <p className="text-[10px] text-slate-400 mt-1">
               Owner will be notified via Slack (mock in demo mode).
@@ -180,7 +180,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
           </div>
 
           {slackSent && (
-            <div className="rounded-lg bg-green-50 border border-green-200 p-3 text-xs text-green-700">
+            <div className="rounded-lg bg-[#1a3a2e]/5 border border-[#1a3a2e]/20 p-3 text-xs text-[#1a3a2e]">
               ✓ Action item created · Mock Slack message sent to {channel}
             </div>
           )}
@@ -196,7 +196,7 @@ export default function CreateActionItemModal({ category, company, onClose, onSu
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-[#1a3a2e] px-4 py-2 text-sm font-semibold text-white hover:bg-[#243f35] disabled:opacity-60 transition-colors"
             >
               {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {submitting ? "Creating…" : "Create & Notify"}

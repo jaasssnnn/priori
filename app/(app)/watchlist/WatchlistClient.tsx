@@ -14,7 +14,7 @@ import { cn, timeAgo } from "@/lib/utils";
 
 function HealthBadge({ score }: { score: number }) {
   const color =
-    score >= 70 ? "bg-green-100 text-green-700" :
+    score >= 70 ? "bg-[#1a3a2e]/10 text-[#1a3a2e]" :
     score >= 40 ? "bg-amber-100 text-amber-700" :
     "bg-red-100 text-red-700";
   return (
@@ -27,7 +27,7 @@ function HealthBadge({ score }: { score: number }) {
 // ─── Trend indicator ──────────────────────────────────────────────────────────
 
 function TrendIcon({ trend }: { trend: WatchlistEntry["trend"] }) {
-  if (trend === "improving")  return <TrendingUp  className="h-4 w-4 text-green-500" />;
+  if (trend === "improving")  return <TrendingUp  className="h-4 w-4 text-[#1a3a2e]" />;
   if (trend === "worsening")  return <TrendingDown className="h-4 w-4 text-red-500" />;
   return <Minus className="h-4 w-4 text-slate-400" />;
 }
@@ -42,7 +42,7 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
     : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden hover:border-indigo-200 hover:shadow-sm transition-all group">
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden hover:border-[#1a3a2e]/20 hover:shadow-sm transition-all group">
       {/* Card header */}
       <div className="flex items-center gap-3 p-5 pb-3">
         <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-100">
@@ -81,7 +81,7 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
         <TrendIcon trend={trend} />
         {delta != null && (
           <span className={cn("text-xs font-medium",
-            delta > 0 ? "text-green-600" : delta < 0 ? "text-red-500" : "text-slate-400"
+            delta > 0 ? "text-[#1a3a2e]" : delta < 0 ? "text-red-500" : "text-slate-400"
           )}>
             {delta > 0 ? `+${delta}` : delta} vs last week
           </span>
@@ -103,14 +103,14 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
               "text-xs font-bold",
               topCategory.score >= 70 ? "text-red-600" :
               topCategory.score >= 40 ? "text-orange-500" :
-              "text-green-600"
+              "text-[#1a3a2e]"
             )}>
               {topCategory.score}/100
             </span>
           </div>
           <div className="mt-1.5 h-1 rounded-full bg-slate-200">
             <div
-              className={cn("h-full rounded-full", topCategory.score >= 70 ? "bg-red-500" : topCategory.score >= 40 ? "bg-orange-400" : "bg-green-500")}
+              className={cn("h-full rounded-full", topCategory.score >= 70 ? "bg-red-500" : topCategory.score >= 40 ? "bg-orange-400" : "bg-[#1a3a2e]")}
               style={{ width: `${topCategory.score}%` }}
             />
           </div>
@@ -135,10 +135,10 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
 
       {/* CTA */}
       <Link
-        href={`/dashboard/${company.id}`}
-        className="flex items-center justify-center gap-2 border-t border-slate-100 py-3 text-xs font-medium text-indigo-600 hover:bg-indigo-50 transition-colors"
+        href={`/companies/${company.id}`}
+        className="flex items-center justify-center gap-2 border-t border-slate-100 py-3 text-xs font-medium text-[#1a3a2e] hover:bg-[#1a3a2e]/5 transition-colors"
       >
-        View Dashboard <ArrowRight className="h-3.5 w-3.5" />
+        View Analysis <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </div>
   );
@@ -162,7 +162,7 @@ export default function WatchlistClient() {
   if (watchlistLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
       </div>
     );
   }
@@ -178,8 +178,8 @@ export default function WatchlistClient() {
           </p>
         </div>
         <Link
-          href="/search"
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+          href="/companies"
+          className="flex items-center gap-2 rounded-xl bg-[#1a3a2e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243f35] transition-colors"
         >
           <Plus className="h-4 w-4" /> Add Company
         </Link>
@@ -193,8 +193,8 @@ export default function WatchlistClient() {
             Add companies to track complaint trends week over week and get spike alerts.
           </p>
           <Link
-            href="/search"
-            className="mt-5 flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+            href="/companies"
+            className="mt-5 flex items-center gap-2 rounded-xl bg-[#1a3a2e] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#243f35] transition-colors"
           >
             <Plus className="h-4 w-4" /> Search & Add
           </Link>

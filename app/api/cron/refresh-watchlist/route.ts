@@ -80,22 +80,27 @@ export async function GET(request: Request) {
         );
 
         const isSpike = prevCat
-          ? detectSpike(category.complaint_count, prevCat.complaint_count)
+          ? detectSpike(
+              category.complaint_count,
+              prevCat.complaint_count,
+              newSnapshot.review_count,
+              prevSnapshot?.review_count ?? newSnapshot.review_count,
+            )
           : false;
 
         const isNewTrend = detectNewTrend(
           category.name,
           category.complaint_count,
-          prevCategoryNames
+          prevCategoryNames,
         );
 
         if (!isSpike && !isNewTrend) continue;
 
+        // Smoothed % change — same α=5 as detectSpike to stay consistent
+        const α = 5;
         const changePercent = prevCat
           ? Math.round(
-              ((category.complaint_count - prevCat.complaint_count) /
-                prevCat.complaint_count) *
-                100
+              ((category.complaint_count + α) / (prevCat.complaint_count + α) - 1) * 100,
             )
           : undefined;
 

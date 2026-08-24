@@ -60,7 +60,7 @@ function AlertCard({
               {isSpike ? `↑ ${alert.change_percent}% spike` : "New trend"}
             </span>
             {!alert.read && (
-              <span className="h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
+              <span className="h-2 w-2 rounded-full bg-[#1a3a2e] shrink-0" />
             )}
           </div>
           <p className="text-sm text-slate-700 leading-relaxed">{alert.message}</p>
@@ -80,7 +80,7 @@ function AlertCard({
             <button
               onClick={() => act(() => onMarkRead(alert.id))}
               title="Mark as read"
-              className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-[#1a3a2e] transition-colors"
             >
               <CheckCheck className="h-3.5 w-3.5" />
             </button>
@@ -93,8 +93,8 @@ function AlertCard({
             <X className="h-3.5 w-3.5" />
           </button>
           <Link
-            href={`/dashboard/${alert.company_id}`}
-            className="ml-1 rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 transition-colors"
+            href={`/companies/${alert.company_id}`}
+            className="ml-1 rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:bg-[#1a3a2e]/10 hover:text-[#1a3a2e] transition-colors"
           >
             View →
           </Link>
@@ -126,7 +126,7 @@ export default function AlertsClient() {
   if (alertsLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
       </div>
     );
   }
@@ -167,14 +167,14 @@ export default function AlertsClient() {
             className={cn(
               "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors",
               filter === key
-                ? "border-indigo-600 text-indigo-700"
+                ? "border-green-600 text-[#1a3a2e]"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             )}
           >
             {label}
             <span className={cn(
               "rounded-full px-1.5 py-0.5 text-[10px] font-bold",
-              filter === key ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-500"
+              filter === key ? "bg-[#1a3a2e]/10 text-[#1a3a2e]" : "bg-slate-100 text-slate-500"
             )}>
               {count}
             </span>
@@ -186,7 +186,7 @@ export default function AlertsClient() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white py-16 text-center">
           {filter === "unread"
-            ? <><CheckCheck className="h-10 w-10 text-green-400 mb-3" /><p className="text-sm font-medium text-slate-600">All caught up!</p><p className="text-xs text-slate-400 mt-1">No unread alerts.</p></>
+            ? <><CheckCheck className="h-10 w-10 text-[#1a3a2e]/70 mb-3" /><p className="text-sm font-medium text-slate-600">All caught up!</p><p className="text-xs text-slate-400 mt-1">No unread alerts.</p></>
             : <><BellOff className="h-10 w-10 text-slate-300 mb-3" /><p className="text-sm font-medium text-slate-600">No alerts in this category</p><p className="text-xs text-slate-400 mt-1">Add companies to your watchlist to receive alerts.</p></>
           }
         </div>

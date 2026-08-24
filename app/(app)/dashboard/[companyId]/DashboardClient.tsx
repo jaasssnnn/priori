@@ -13,6 +13,7 @@ import CreateActionItemModal from "@/components/dashboard/CreateActionItemModal"
 import LogDecisionModal from "@/components/dashboard/LogDecisionModal";
 import type { Company, Snapshot, ComplaintCategory } from "@/types";
 import { timeAgo } from "@/lib/utils";
+import { getIndustryConfig, detectIndustry } from "@/lib/industries";
 
 interface Props {
   company: Company;
@@ -22,6 +23,8 @@ interface Props {
 
 export default function DashboardClient({ company, snapshot, previousSnapshot }: Props) {
   const { isOnWatchlist, addToWatchlist, removeFromWatchlist } = useApp();
+  const industryKey = company.industry ?? detectIndustry(company.app_id, company.name);
+  const industryConfig = getIndustryConfig(industryKey);
 
   const [actionItemCategory, setActionItemCategory] = useState<ComplaintCategory | null>(null);
   const [decisionCategory, setDecisionCategory]     = useState<ComplaintCategory | null>(null);
@@ -70,23 +73,31 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
             </div>
 
             <div>
-              <h1 className="text-xl font-bold text-slate-900">{company.name}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl font-bold text-slate-900">{company.name}</h1>
+                <span className="rounded-full bg-[#1a3a2e]/8 border border-[#1a3a2e]/15 px-2 py-0.5 text-[11px] font-medium text-[#1a3a2e]">
+                  {industryConfig.label}
+                </span>
+              </div>
               {company.developer && (
                 <p className="text-sm text-slate-500 mt-0.5">{company.developer}</p>
               )}
-              <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-4 mt-2 flex-wrap">
                 <span className="flex items-center gap-1 text-sm text-slate-600">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   <strong>{snapshot.avg_rating.toFixed(1)}</strong>
                 </span>
                 <span className="text-xs text-slate-400">
-                  {snapshot.review_count.toLocaleString()} reviews analysed
+                  {snapshot.review_count.toLocaleString()} feedback items analysed
                 </span>
                 <span className="flex items-center gap-1 text-xs text-slate-400">
                   <Clock className="h-3 w-3" />
                   {timeAgo(snapshot.created_at)}
                 </span>
               </div>
+              <p className="text-[11px] text-slate-400 mt-1.5">
+                Risk lens: {industryConfig.riskLens}
+              </p>
             </div>
           </div>
 
@@ -103,7 +114,7 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
               onClick={toggleWatchlist}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                 onWatchlist
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  ? "bg-[#1a3a2e] text-white hover:bg-[#243f35]"
                   : "border border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >

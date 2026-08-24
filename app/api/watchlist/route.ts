@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { MOCK_SNAPSHOTS, MOCK_PREVIOUS_SNAPSHOTS } from "@/lib/mock/snapshots";
+import { MOCK_COMPANIES } from "@/lib/mock/companies";
 import type { WatchlistEntry } from "@/types";
 
 export async function GET() {
@@ -34,7 +35,7 @@ export async function GET() {
           app_id:       row.app_id ?? "",
           app_store_id: row.app_store_id ?? "",
           name:         row.company_name,
-          icon_url:     row.company_icon ?? "",
+          icon_url:     MOCK_COMPANIES.find((m) => m.id === row.company_id)?.icon_url ?? row.company_icon ?? "",
           added_at:     row.added_at,
         },
         latest_snapshot:   latest,

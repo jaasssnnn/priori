@@ -52,8 +52,9 @@ export default function SearchClient({ searchParamsPromise }: Props) {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Company Search</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Search any company to pull complaint data from Play Store, App Store, Reddit, and
-          Twitter/X, then analyse with AI.
+          Find a company&apos;s app on the Play Store or App Store to pull complaint data from
+          Play Store, App Store, Reddit, and Twitter/X, then analyse with AI. Results are
+          confirmed app matches — not every company name will resolve to an app.
         </p>
       </div>
 
@@ -65,14 +66,14 @@ export default function SearchClient({ searchParamsPromise }: Props) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search any company — CRED, PhonePe, Paytm, Razorpay…"
-            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-colors"
+            placeholder="Enter a company name — e.g. CRED, PhonePe, Paytm, Razorpay…"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm shadow-sm placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition-colors"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="h-11 shrink-0 flex items-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+          className="h-11 shrink-0 flex items-center gap-2 rounded-xl bg-green-600 px-5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
           {loading ? "Searching…" : "Search"}
@@ -81,12 +82,12 @@ export default function SearchClient({ searchParamsPromise }: Props) {
 
       {/* Demo hint */}
       {!searched && (
-        <div className="mb-8 rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+        <div className="mb-8 rounded-xl border border-green-100 bg-green-50 p-4">
           <div className="flex items-start gap-3">
-            <Zap className="h-4 w-4 text-indigo-500 mt-0.5 shrink-0" />
+            <Zap className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-indigo-800">Try a demo search</p>
-              <p className="text-xs text-indigo-600 mt-0.5">
+              <p className="text-sm font-medium text-green-800">Try a demo search</p>
+              <p className="text-xs text-green-600 mt-0.5">
                 Search for{" "}
                 {["CRED", "PhonePe", "Paytm"].map((name, i) => (
                   <span key={name}>
@@ -149,8 +150,8 @@ export default function SearchClient({ searchParamsPromise }: Props) {
             {results.map((company) => (
               <Link
                 key={company.id}
-                href={`/dashboard/${company.id}`}
-                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-indigo-300 hover:shadow-sm transition-all group"
+                href={`/companies/${company.id}`}
+                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-green-300 hover:shadow-sm transition-all group"
               >
                 {/* Icon */}
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
@@ -171,7 +172,7 @@ export default function SearchClient({ searchParamsPromise }: Props) {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-slate-900 group-hover:text-indigo-700 transition-colors">
+                    <p className="font-semibold text-slate-900 group-hover:text-green-700 transition-colors">
                       {company.name}
                     </p>
                   </div>
@@ -195,7 +196,7 @@ export default function SearchClient({ searchParamsPromise }: Props) {
 
                 {/* CTA */}
                 <div className="shrink-0">
-                  <span className="flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <span className="flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 group-hover:bg-green-600 group-hover:text-white transition-colors">
                     Analyse <ArrowRight className="h-3 w-3" />
                   </span>
                 </div>

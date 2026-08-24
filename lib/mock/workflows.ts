@@ -15,7 +15,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_message_ts: "1723123456.123456",
     created_at: "2026-08-12T09:30:00Z",
     company_name: "CRED",
-    company_icon: "https://play-lh.googleusercontent.com/o9AuDMUMNbFYeIaFNz1khc7PNBCB2WX2oCeEcyLdAMvE0UM9sJMDlsb0DGe1cL-9d0",
+    company_icon: "/icons/cred.png",
     priority_score: 74,
   },
   {
@@ -31,7 +31,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_channel: "#growth-product",
     created_at: "2026-08-13T11:00:00Z",
     company_name: "CRED",
-    company_icon: "https://play-lh.googleusercontent.com/o9AuDMUMNbFYeIaFNz1khc7PNBCB2WX2oCeEcyLdAMvE0UM9sJMDlsb0DGe1cL-9d0",
+    company_icon: "/icons/cred.png",
     priority_score: 67,
   },
   {
@@ -48,7 +48,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_message_ts: "1723156789.654321",
     created_at: "2026-08-10T08:00:00Z",
     company_name: "PhonePe",
-    company_icon: "https://play-lh.googleusercontent.com/iRMKmtPB0USPWo2lIgJGSmr-3hkTOYSJqV4fmtqVMFJD6hGhUMvPIJ5L7N3qdaGl6w",
+    company_icon: "/icons/phonepe.png",
     priority_score: 81,
   },
   {
@@ -64,7 +64,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_channel: "#android-perf",
     created_at: "2026-08-11T14:00:00Z",
     company_name: "PhonePe",
-    company_icon: "https://play-lh.googleusercontent.com/iRMKmtPB0USPWo2lIgJGSmr-3hkTOYSJqV4fmtqVMFJD6hGhUMvPIJ5L7N3qdaGl6w",
+    company_icon: "/icons/phonepe.png",
     priority_score: 65,
   },
   {
@@ -81,7 +81,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_message_ts: "1723190123.111111",
     created_at: "2026-08-08T10:00:00Z",
     company_name: "Paytm",
-    company_icon: "https://play-lh.googleusercontent.com/vkshNNIFZfmPLtMH1AJmcnRVFYyBJ5VhIGkwm_I3O4PvAP_rM4_ICIgHE47WZMU2cA",
+    company_icon: "/icons/paytm.png",
     priority_score: 88,
   },
   {
@@ -97,7 +97,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     slack_channel: "#refunds-ops",
     created_at: "2026-08-12T16:00:00Z",
     company_name: "Paytm",
-    company_icon: "https://play-lh.googleusercontent.com/vkshNNIFZfmPLtMH1AJmcnRVFYyBJ5VhIGkwm_I3O4PvAP_rM4_ICIgHE47WZMU2cA",
+    company_icon: "/icons/paytm.png",
     priority_score: 72,
   },
   {
@@ -114,7 +114,7 @@ export const MOCK_ACTION_ITEMS: ActionItem[] = [
     created_at: "2026-07-28T09:00:00Z",
     resolved_at: "2026-08-05T17:00:00Z",
     company_name: "CRED",
-    company_icon: "https://play-lh.googleusercontent.com/o9AuDMUMNbFYeIaFNz1khc7PNBCB2WX2oCeEcyLdAMvE0UM9sJMDlsb0DGe1cL-9d0",
+    company_icon: "/icons/cred.png",
     priority_score: 56,
   },
 ];

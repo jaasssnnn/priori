@@ -54,7 +54,7 @@ function SlackPreview({ item }: { item: ActionItem }) {
       </div>
       <div className="px-4 py-3 space-y-2">
         <div className="flex items-start gap-2">
-          <div className="h-7 w-7 shrink-0 rounded bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">P</div>
+          <div className="h-7 w-7 shrink-0 rounded bg-[#1a3a2e] flex items-center justify-center text-white text-[10px] font-bold mt-0.5">P</div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-800">Priori Bot</span>
@@ -62,7 +62,7 @@ function SlackPreview({ item }: { item: ActionItem }) {
               <span className="text-[10px] text-slate-400">{formatDate(item.created_at)}</span>
             </div>
             {/* Block Kit preview */}
-            <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs space-y-2 border-l-4 border-l-indigo-500">
+            <div className="mt-2 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs space-y-2 border-l-4 border-l-[#1a3a2e]">
               <p className="font-bold text-slate-800">📋 {item.category_name} — New Action Item</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-slate-600">
                 <div><span className="font-semibold">Company:</span> {item.company_name}</div>
@@ -73,7 +73,7 @@ function SlackPreview({ item }: { item: ActionItem }) {
               <div className="text-slate-600">
                 <span className="font-semibold">Steps:</span> {item.resolution_steps.split("\n")[0]}…
               </div>
-              <button className="rounded bg-indigo-600 px-3 py-1 text-white text-[11px] font-medium">
+              <button className="rounded bg-[#1a3a2e] px-3 py-1 text-white text-[11px] font-medium">
                 View in Priori →
               </button>
             </div>
@@ -83,16 +83,16 @@ function SlackPreview({ item }: { item: ActionItem }) {
         {/* Resolution update if resolved */}
         {(item.status === "resolved" || item.status === "closed") && item.resolved_at && (
           <div className="flex items-start gap-2">
-            <div className="h-7 w-7 shrink-0 rounded bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">P</div>
+            <div className="h-7 w-7 shrink-0 rounded bg-[#1a3a2e] flex items-center justify-center text-white text-[10px] font-bold mt-0.5">P</div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-800">Priori Bot</span>
                 <span className="text-[10px] text-slate-400">APP</span>
                 <span className="text-[10px] text-slate-400">{formatDate(item.resolved_at)}</span>
               </div>
-              <div className="mt-2 rounded-lg border border-green-100 bg-green-50 p-3 text-xs border-l-4 border-l-green-500">
-                <p className="font-bold text-green-800">✓ {item.category_name} — Marked {item.status}</p>
-                <p className="text-green-700 mt-1">Status updated by team. View full history in Priori.</p>
+              <div className="mt-2 rounded-lg border border-[#1a3a2e]/15 bg-[#1a3a2e]/5 p-3 text-xs border-l-4 border-l-[#1a3a2e]">
+                <p className="font-bold text-[#1a3a2e]">✓ {item.category_name} — Marked {item.status}</p>
+                <p className="text-[#1a3a2e] mt-1">Status updated by team. View full history in Priori.</p>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@ function ExpandedRow({ item }: { item: ActionItem }) {
         <ol className="space-y-1.5">
           {steps.map((step, i) => (
             <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
-              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[9px] font-bold text-indigo-700">
+              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#1a3a2e]/10 text-[9px] font-bold text-[#1a3a2e]">
                 {i + 1}
               </span>
               {step.replace(/^\d+\.\s*/, "")}
@@ -123,7 +123,7 @@ function ExpandedRow({ item }: { item: ActionItem }) {
           ))}
         </ol>
         {item.resolved_at && (
-          <p className="mt-3 text-[10px] text-green-600">
+          <p className="mt-3 text-[10px] text-[#1a3a2e]">
             ✓ Resolved on {formatDate(item.resolved_at)}
           </p>
         )}
@@ -181,7 +181,7 @@ export default function WorkflowsClient() {
   if (actionItemsLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
       </div>
     );
   }
@@ -193,12 +193,12 @@ export default function WorkflowsClient() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Workflow Tracker</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Track action items by complaint category — owners, deadlines, and Slack assignments.
+            Assigned work items created from complaint categories — owners, deadlines, and Slack assignments. Triage decisions (deprioritize / defer) are recorded separately in the Audit Trail.
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-2 rounded-xl bg-[#1a3a2e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243f35] transition-colors"
         >
           <Plus className="h-4 w-4" /> New Action Item
         </button>
@@ -226,7 +226,7 @@ export default function WorkflowsClient() {
         <select
           value={filterCompany}
           onChange={(e) => setFilterCompany(e.target.value)}
-          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-indigo-400 focus:outline-none"
+          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
         >
           <option value="all">All companies</option>
           {companies.map((name) => {
@@ -238,7 +238,7 @@ export default function WorkflowsClient() {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-indigo-400 focus:outline-none"
+          className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-xs focus:border-[#1a3a2e]/50 focus:outline-none"
         >
           <option value="all">All statuses</option>
           {STATUS_OPTIONS.map((s) => (
@@ -326,7 +326,7 @@ export default function WorkflowsClient() {
                             "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
                             item.priority_score >= 70 ? "bg-red-100 text-red-700" :
                             item.priority_score >= 40 ? "bg-orange-100 text-orange-700" :
-                            "bg-green-100 text-green-700"
+                            "bg-[#1a3a2e]/10 text-[#1a3a2e]"
                           )}>
                             {item.priority_score}
                           </span>
@@ -358,7 +358,7 @@ export default function WorkflowsClient() {
                       value={item.status}
                       disabled={updatingId === item.id}
                       onChange={(e) => handleStatusChange(item.id, e.target.value as ActionItemStatus)}
-                      className="h-7 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+                      className="h-7 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs focus:border-[#1a3a2e]/50 focus:outline-none disabled:opacity-50"
                     >
                       {STATUS_OPTIONS.map((s) => (
                         <option key={s} value={s}>{STATUS_META[s].label}</option>

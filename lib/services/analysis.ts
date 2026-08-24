@@ -1,5 +1,5 @@
 import { config } from "@/lib/config";
-import { getMockSnapshot, getMockPreviousSnapshot } from "@/lib/mock/snapshots";
+import { getMockPreviousSnapshot } from "@/lib/mock/snapshots";
 import type { Snapshot } from "@/types";
 
 // Full URL required when called from server components
@@ -9,10 +9,6 @@ export async function getSnapshot(
   companyId: string,
   companyName?: string
 ): Promise<Snapshot | null> {
-  if (config.USE_MOCK_AI && config.USE_MOCK_SCRAPERS) {
-    await delay(600);
-    return getMockSnapshot(companyId) ?? null;
-  }
   try {
     const res = await fetch(`${BASE}/api/analyze`, {
       method: "POST",
@@ -20,11 +16,11 @@ export async function getSnapshot(
       body: JSON.stringify({ companyId, companyName }),
       cache: "no-store",
     });
-    if (!res.ok) throw new Error(`Analyze ${res.status}`);
+    if (!res.ok) return null;
     return res.json();
   } catch (err) {
-    console.error("[analysis] getSnapshot failed, falling back to mock:", err);
-    return getMockSnapshot(companyId) ?? null;
+    console.error("[analysis] getSnapshot failed:", err);
+    return null;
   }
 }
 

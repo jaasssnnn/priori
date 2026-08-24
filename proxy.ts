@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const PROTECTED = [
+  "/overview",
+  "/companies",
   "/dashboard",
   "/workflows",
   "/audit",
@@ -45,7 +47,9 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isProtected = PROTECTED.some((p) => pathname.startsWith(p));
 
-  if (isProtected && !user) {
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+  if (isProtected && !user && !demoMode) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
@@ -54,7 +58,7 @@ export async function proxy(request: NextRequest) {
 
   // Redirect logged-in users away from /login
   if (pathname === "/login" && user) {
-    const next = request.nextUrl.searchParams.get("next") ?? "/search";
+    const next = request.nextUrl.searchParams.get("next") ?? "/overview";
     const url = request.nextUrl.clone();
     url.pathname = next;
     url.searchParams.delete("next");

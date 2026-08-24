@@ -77,6 +77,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await watchlistService.getWatchlist();
       setWatchlist(data);
+    } catch {
+      setWatchlist([]);
     } finally {
       setWatchlistLoading(false);
     }
@@ -85,20 +87,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refreshWatchlist();
 
-    workflowsService.getActionItems().then((data) => {
-      setActionItems(data);
-      setActionItemsLoading(false);
-    });
+    workflowsService.getActionItems()
+      .then((data) => setActionItems(data))
+      .catch(() => {})
+      .finally(() => setActionItemsLoading(false));
 
-    auditService.getAuditEntries().then((data) => {
-      setAuditEntries(data);
-      setAuditLoading(false);
-    });
+    auditService.getAuditEntries()
+      .then((data) => setAuditEntries(data))
+      .catch(() => {})
+      .finally(() => setAuditLoading(false));
 
-    alertsService.getAlerts().then((data) => {
-      setAlerts(data);
-      setAlertsLoading(false);
-    });
+    alertsService.getAlerts()
+      .then((data) => setAlerts(data))
+      .catch(() => {})
+      .finally(() => setAlertsLoading(false));
   }, [refreshWatchlist]);
 
   // ── Watchlist mutations ───────────────────────────────────────────────────
