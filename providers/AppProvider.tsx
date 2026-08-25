@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import type { ActionItem, AuditEntry, Alert, WatchlistEntry, ActionItemStatus, AuditDecision } from "@/types";
+import type { ActionItem, AuditEntry, Alert, WatchlistEntry, ActionItemStatus, AuditDecision, Company, Snapshot } from "@/types";
 import * as workflowsService from "@/lib/services/workflows";
 import * as auditService from "@/lib/services/audit";
 import * as alertsService from "@/lib/services/alerts";
@@ -13,7 +13,7 @@ interface AppContextValue {
   // Watchlist
   watchlist: WatchlistEntry[];
   watchlistLoading: boolean;
-  addToWatchlist: (companyId: string) => void;
+  addToWatchlist: (company: Company, snapshot?: Snapshot) => Promise<void>;
   removeFromWatchlist: (companyId: string) => void;
   isOnWatchlist: (companyId: string) => boolean;
   refreshWatchlist: () => void;
@@ -106,14 +106,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // ── Watchlist mutations ───────────────────────────────────────────────────
 
   const addToWatchlist = useCallback(
-    async (companyId: string) => {
-      const entry = await import("@/lib/mock/companies").then((m) =>
-        m.MOCK_COMPANIES.find((c) => c.id === companyId)
-      );
-      if (entry) {
-        await watchlistService.addToWatchlist(entry);
-        await refreshWatchlist();
-      }
+    async (company: Company, snapshot?: Snapshot) => {
+      await watchlistService.addToWatchlist(company, snapshot);
+      await refreshWatchlist();
     },
     [refreshWatchlist]
   );

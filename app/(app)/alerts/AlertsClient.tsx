@@ -24,7 +24,10 @@ function AlertCard({
   const Icon       = isSpike ? TrendingUp : Sparkles;
   const iconColor  = isSpike ? "text-red-500" : "text-violet-500";
   const iconBg     = isSpike ? "bg-red-50"    : "bg-violet-50";
-  const borderColor= isSpike ? "border-l-red-400" : "border-l-violet-400";
+  // Unread alerts get a coloured full border instead of a left stripe
+  const cardBorder = alert.read
+    ? "border-slate-200"
+    : isSpike ? "border-red-200" : "border-violet-200";
 
   async function act(fn: () => Promise<void>) {
     setActing(true);
@@ -33,9 +36,8 @@ function AlertCard({
 
   return (
     <div className={cn(
-      "rounded-xl border border-slate-200 bg-white p-5 border-l-4 transition-opacity",
-      borderColor,
-      !alert.read && "shadow-sm",
+      "rounded-xl border bg-white p-5 transition-opacity",
+      cardBorder,
       acting && "opacity-50 pointer-events-none"
     )}>
       <div className="flex items-start gap-4">

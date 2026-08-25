@@ -2,31 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion, LayoutGroup } from "framer-motion";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import {
-  LayoutGrid,
-  Building2,
-  Kanban,
-  ScrollText,
-  Bookmark,
-  Bell,
-  GitCompare,
-  Settings,
-} from "lucide-react";
+  OverviewIcon,
+  CompaniesIcon,
+  WorkflowsIcon,
+  AuditIcon,
+  WatchlistIcon,
+  AlertsIcon,
+  CompareIcon,
+  SettingsIcon,
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const mainNav = [
-  { label: "Overview",    href: "/overview",   icon: LayoutGrid },
-  { label: "Companies",   href: "/companies",  icon: Building2  },
-  { label: "Workflows",   href: "/workflows",  icon: Kanban     },
-  { label: "Audit Trail", href: "/audit",      icon: ScrollText },
-  { label: "Watchlist",   href: "/watchlist",  icon: Bookmark   },
-  { label: "Alerts",      href: "/alerts",     icon: Bell       },
-  { label: "Compare",     href: "/compare",    icon: GitCompare },
+  { label: "Overview",    href: "/overview",   icon: OverviewIcon  },
+  { label: "Companies",   href: "/companies",  icon: CompaniesIcon },
+  { label: "Workflows",   href: "/workflows",  icon: WorkflowsIcon },
+  { label: "Audit Trail", href: "/audit",      icon: AuditIcon     },
+  { label: "Watchlist",   href: "/watchlist",  icon: WatchlistIcon },
+  { label: "Alerts",      href: "/alerts",     icon: AlertsIcon    },
+  { label: "Compare",     href: "/compare",    icon: CompareIcon   },
 ];
 
 const generalNav = [
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Settings", href: "/settings", icon: SettingsIcon },
 ];
 
 function NavLink({
@@ -48,14 +49,21 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+        "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
         active
-          ? "bg-white text-[#1a3a2e] shadow-sm font-semibold"
+          ? "text-[#1a3a2e] font-semibold"
           : "text-white/60 hover:bg-[#243f35] hover:text-white"
       )}
     >
-      <Icon className="h-4 w-4 shrink-0" />
-      {label}
+      {active && (
+        <motion.span
+          layoutId="nav-pill"
+          className="absolute inset-0 rounded-lg bg-white"
+          transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+        />
+      )}
+      <Icon className="relative z-10 h-4 w-4 shrink-0" />
+      <span className="relative z-10">{label}</span>
     </Link>
   );
 }
@@ -79,7 +87,7 @@ export default function Sidebar() {
         </div>
         <div>
           <span className="text-base font-bold tracking-tight">Priori</span>
-          <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-white/60">
+          <span className="ml-1.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-medium text-white/60">
             BETA
           </span>
         </div>
@@ -87,27 +95,29 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-        <div>
-          <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
-            Intelligence
-          </p>
-          <div className="space-y-0.5">
-            {mainNav.map((item) => (
-              <NavLink key={item.href} {...item} />
-            ))}
+        <LayoutGroup>
+          <div>
+            <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wide text-white/30">
+              Intelligence
+            </p>
+            <div className="space-y-0.5">
+              {mainNav.map((item) => (
+                <NavLink key={item.href} {...item} />
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
-            General
-          </p>
-          <div className="space-y-0.5">
-            {generalNav.map((item) => (
-              <NavLink key={item.href} {...item} />
-            ))}
+          <div>
+            <p className="mb-1.5 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wide text-white/30">
+              General
+            </p>
+            <div className="space-y-0.5">
+              {generalNav.map((item) => (
+                <NavLink key={item.href} {...item} />
+              ))}
+            </div>
           </div>
-        </div>
+        </LayoutGroup>
       </nav>
 
       {/* Footer */}
@@ -118,7 +128,7 @@ export default function Sidebar() {
           </div>
           <div className="min-w-0">
             <p className="truncate text-xs font-semibold text-white">{displayName}</p>
-            <p className="truncate text-[10px] text-white/40">{user?.email ?? ""}</p>
+            <p className="truncate text-[11px] text-white/40">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>

@@ -1,15 +1,25 @@
-import { config } from "@/lib/config";
-import { MOCK_SLACK_CONNECTION } from "@/lib/mock/slack";
-import type { ActionItem, Alert, SlackConnection, SlackMessage } from "@/types";
+import type { ActionItem, Alert, SlackChannel, SlackConnection, SlackMessage } from "@/types";
 
+/** Current user's saved Slack connection, or null if not connected. */
 export async function getSlackConnection(): Promise<SlackConnection | null> {
-  if (config.USE_MOCK_SLACK) {
-    await delay(100);
-    return MOCK_SLACK_CONNECTION;
+  try {
+    const res = await fetch("/api/slack/connection");
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
   }
-  const res = await fetch("/api/slack/connection");
-  if (!res.ok) return null;
-  return res.json();
+}
+
+/** The channels the connected workspace exposes (empty if not connected). */
+export async function getSlackChannels(): Promise<SlackChannel[]> {
+  try {
+    const res = await fetch("/api/slack/channels");
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }
 
 /** Build Block Kit message for a new action item assignment. */
@@ -126,26 +136,21 @@ export function buildSpikeMessage(alert: Alert, baseUrl: string): SlackMessage {
   };
 }
 
-/** Send a Slack message. In mock mode, logs to console. */
+/** Post a Slack message via the server route (uses the stored workspace token). */
 export async function sendSlackMessage(
   channelId: string,
   message: SlackMessage,
-  connection?: SlackConnection | null
-): Promise<{ ok: boolean; ts?: string }> {
-  if (config.USE_MOCK_SLACK) {
-    await delay(500);
-    console.log("[MOCK SLACK]", channelId, JSON.stringify(message, null, 2));
-    return { ok: true, ts: `${Date.now()}.000000` };
+): Promise<{ ok: boolean; ts?: string; error?: string }> {
+  try {
+    const res = await fetch("/api/slack/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel: channelId, message }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.ok) return { ok: false, error: json.error ?? "send_failed" };
+    return { ok: true, ts: json.ts };
+  } catch {
+    return { ok: false, error: "network_error" };
   }
-  const res = await fetch("/api/slack/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ channel: channelId, message }),
-  });
-  if (!res.ok) return { ok: false };
-  return res.json();
-}
-
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }

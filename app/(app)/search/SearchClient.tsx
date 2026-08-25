@@ -67,7 +67,7 @@ export default function SearchClient({ searchParamsPromise }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Enter a company name — e.g. CRED, PhonePe, Paytm, Razorpay…"
-            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm shadow-sm placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition-colors"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition-colors"
           />
         </div>
         <button
@@ -151,7 +151,7 @@ export default function SearchClient({ searchParamsPromise }: Props) {
               <Link
                 key={company.id}
                 href={`/companies/${company.id}`}
-                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-green-300 hover:shadow-sm transition-all group"
+                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-green-300 transition-all group"
               >
                 {/* Icon */}
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Bell } from "lucide-react";
+import { SearchIcon, AlertsIcon } from "@/components/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApp } from "@/providers/AppProvider";
@@ -33,13 +33,13 @@ export default function Topbar() {
       {/* Search */}
       <form onSubmit={handleSearch} className="flex w-full max-w-sm items-center">
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search a company or app…"
-            className="h-9 w-full rounded-lg border border-slate-200 bg-[#f0f4f2] pl-9 pr-4 text-sm placeholder:text-slate-400 focus:border-[#1a3a2e] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/10 transition-colors"
+            className="h-9 w-full rounded-md border border-slate-200 bg-[#f0f4f2] pl-9 pr-4 text-sm placeholder:text-slate-400 focus:border-[#1a3a2e] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/10 transition-colors"
           />
         </div>
       </form>
@@ -51,9 +51,9 @@ export default function Topbar() {
           className="relative flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
           aria-label={`Alerts${unreadAlertCount > 0 ? ` (${unreadAlertCount} unread)` : ""}`}
         >
-          <Bell className="h-4 w-4" />
+          <AlertsIcon size={16} />
           {unreadAlertCount > 0 && (
-            <span className="absolute right-1 top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+            <span className="absolute right-1 top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white tabular-nums">
               {unreadAlertCount > 9 ? "9+" : unreadAlertCount}
             </span>
           )}
@@ -66,7 +66,7 @@ export default function Topbar() {
           </div>
           <div className="hidden sm:block">
             <p className="text-xs font-semibold text-slate-800 leading-none">{displayName}</p>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-none">{user?.email ?? "demo@priori.app"}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5 leading-none">{user?.email ?? "demo@priori.app"}</p>
           </div>
         </div>
       </div>

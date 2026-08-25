@@ -50,8 +50,8 @@ export default function LogDecisionModal({ category, company, onClose, onSuccess
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl">
+    <div className="animate-scrim fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+      <div className="animate-modal w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <div>

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { companyId } = await params;
   const company = await getCompany(companyId);
   return {
-    title: company ? `${company.name} — Priori` : "Company Analysis",
+    title: company ? `${company.name} · Priori` : "Company Analysis",
   };
 }
 

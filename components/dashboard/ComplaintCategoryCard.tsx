@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, ShieldAlert, ExternalLink, Plus, ArrowUpRight, Info } from "lucide-react";
 import { cn, priorityBadgeClass, getPriorityBand } from "@/lib/utils";
 import { deriveScoreBreakdown } from "@/lib/scoring";
@@ -68,21 +68,21 @@ function QuoteCard({ quote, isTop = false }: { quote: Quote; isTop?: boolean }) 
       <div className="flex items-center justify-between flex-wrap gap-2">
         {/* Source + rating + date */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-semibold", meta.badge)}>
+          <span className={cn("rounded-md px-1.5 py-0.5 text-[11px] font-semibold", meta.badge)}>
             {meta.label}
           </span>
           {quote.rating != null && (
-            <span className="text-[10px] text-amber-600 font-medium">{quote.rating}★</span>
+            <span className="text-[11px] text-amber-600 font-medium">{quote.rating}★</span>
           )}
           {quote.author && (
-            <span className="text-[10px] text-slate-400">{quote.author}</span>
+            <span className="text-[11px] text-slate-400">{quote.author}</span>
           )}
-          <span className="text-[10px] text-slate-400">{quote.date}</span>
+          <span className="text-[11px] text-slate-400">{quote.date}</span>
         </div>
 
         {/* Citation link */}
         {quote.url && (
-          <span className="flex items-center gap-1 text-[10px] font-medium text-[#1a3a2e] group-hover:text-[#1a3a2e]">
+          <span className="flex items-center gap-1 text-[11px] font-medium text-[#1a3a2e] group-hover:text-[#1a3a2e]">
             {meta.cta} <ArrowUpRight className="h-3 w-3" />
           </span>
         )}
@@ -108,11 +108,11 @@ function SourceChips({ quotes }: { quotes: Quote[] }) {
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
-      <span className="text-[10px] text-slate-400 font-medium">Sources:</span>
+      <span className="text-[11px] text-slate-400 font-medium">Sources:</span>
       {(Object.entries(counts) as [DataSource, number][]).map(([source, count]) => {
         const meta = SOURCE_META[source];
         return (
-          <span key={source} className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", meta.badge)}>
+          <span key={source} className={cn("rounded-md px-2 py-0.5 text-[11px] font-semibold", meta.badge)}>
             {meta.label} ({count})
           </span>
         );
@@ -129,6 +129,12 @@ function ScoreBreakdown({ score, avgSeverity, riskRelevance }: {
   riskRelevance: boolean;
 }) {
   const b = deriveScoreBreakdown(score, avgSeverity, riskRelevance);
+  // Grow the bars from 0 the frame after the panel opens (§6 mount animation)
+  const [grown, setGrown] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setGrown(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const rows = [
     { label: "Frequency",  pts: b.frequency,  max: 40, tip: "How widespread — share of all reviews mentioning this issue" },
@@ -137,8 +143,8 @@ function ScoreBreakdown({ score, avgSeverity, riskRelevance }: {
   ] as const;
 
   return (
-    <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-2.5">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Why this score?</p>
+    <div className="animate-panel mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3 space-y-2.5">
+      <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">Why this score?</p>
       {rows.map(({ label, pts, max, tip }) => (
         <div key={label} className="space-y-1">
           <div className="flex items-center justify-between">
@@ -149,14 +155,14 @@ function ScoreBreakdown({ score, avgSeverity, riskRelevance }: {
           </div>
           <div className="h-1.5 rounded-full bg-slate-200">
             <div
-              className="h-full rounded-full bg-[#1a3a2e] transition-all duration-500"
-              style={{ width: `${(pts / max) * 100}%` }}
+              className="h-full rounded-full bg-[#1a3a2e] transition-[width] duration-700 ease-out"
+              style={{ width: grown ? `${(pts / max) * 100}%` : "0%" }}
             />
           </div>
         </div>
       ))}
       <div className="flex justify-between border-t border-slate-200 pt-2 mt-1">
-        <span className="text-[10px] font-semibold text-slate-500">Total</span>
+        <span className="text-[11px] font-semibold text-slate-500">Total</span>
         <span className="text-[11px] font-bold text-slate-800 tabular-nums">
           {score}<span className="font-normal text-slate-400">/100</span>
         </span>
@@ -172,7 +178,14 @@ export default function ComplaintCategoryCard({
 }: Props) {
   const [expanded, setExpanded]     = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [grown, setGrown] = useState(false);
   const band = getPriorityBand(category.score);
+
+  // §6 — fill the score bar from 0 the frame after mount
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setGrown(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const scoreColor = {
     critical: "bg-red-600",
@@ -181,17 +194,18 @@ export default function ComplaintCategoryCard({
     low:      "bg-[#1a3a2e]",
   }[band];
 
-  const borderColor = {
-    critical: "border-l-red-500",
-    high:     "border-l-orange-400",
-    medium:   "border-l-yellow-400",
-    low:      "border-l-[#1a3a2e]",
+  // Urgency is signalled by border weight + colour, not a left stripe or a shadow
+  const cardBorder = {
+    critical: "border-red-200",
+    high:     "border-orange-200",
+    medium:   "border-slate-200",
+    low:      "border-slate-200",
   }[band];
 
   const citedCount = category.quotes.filter((q) => q.url).length;
 
   return (
-    <div className={cn("rounded-xl border border-slate-200 bg-white border-l-4 overflow-hidden", borderColor)}>
+    <div className={cn("rounded-xl border bg-white overflow-hidden", cardBorder)}>
       {/* Header row */}
       <div className="flex items-start gap-4 p-5">
         {/* Rank */}
@@ -203,17 +217,17 @@ export default function ComplaintCategoryCard({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-2">
             <h3 className="font-semibold text-slate-900">{category.name}</h3>
-            <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide", priorityBadgeClass(category.score))}>
+            <span className={cn("inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide", priorityBadgeClass(category.score))}>
               {band}
             </span>
             {category.risk_relevance && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700" title={category.risk_dimensions?.join(", ") || "Elevated risk relevance"}>
+              <span className="inline-flex items-center gap-1 rounded-md bg-violet-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-violet-700" title={category.risk_dimensions?.join(", ") || "Elevated risk relevance"}>
                 <ShieldAlert className="h-2.5 w-2.5" />
                 {category.risk_dimensions?.[0] ?? "Risk relevance"}
               </span>
             )}
             {citedCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
                 <ExternalLink className="h-2.5 w-2.5" /> {citedCount} cited
               </span>
             )}
@@ -224,8 +238,8 @@ export default function ComplaintCategoryCard({
             <div className="flex items-center gap-2 flex-1">
               <div className="flex-1 h-1.5 rounded-full bg-slate-100">
                 <div
-                  className={cn("h-full rounded-full transition-all", scoreColor)}
-                  style={{ width: `${category.score}%` }}
+                  className={cn("h-full rounded-full transition-[width] duration-700 ease-out", scoreColor)}
+                  style={{ width: grown ? `${category.score}%` : "0%" }}
                 />
               </div>
               <span className="text-sm font-bold text-slate-700 tabular-nums w-8 text-right">
@@ -267,16 +281,11 @@ export default function ComplaintCategoryCard({
             {category.ai_recommendation}
           </p>
         </div>
-
-        {/* Score pill */}
-        <div className={cn("shrink-0 flex h-10 w-10 flex-col items-center justify-center rounded-xl text-white font-bold text-sm", scoreColor)}>
-          {category.score}
-        </div>
       </div>
 
       {/* Expanded: all quotes */}
       {expanded && (
-        <div className="border-t border-slate-100 px-5 py-4 space-y-3">
+        <div className="animate-panel border-t border-slate-100 px-5 py-4 space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
               All citations ({category.quotes.length})
@@ -299,7 +308,7 @@ export default function ComplaintCategoryCard({
             >
               <Plus className="h-3.5 w-3.5" /> Create Action Item
             </button>
-            <span className="text-[10px] text-slate-400 pl-1">Assign work → Workflows</span>
+            <span className="text-[11px] text-slate-400 pl-1">Assign work → Workflows</span>
           </div>
           <div className="flex flex-col items-start gap-0.5">
             <button
@@ -308,7 +317,7 @@ export default function ComplaintCategoryCard({
             >
               Log Decision
             </button>
-            <span className="text-[10px] text-slate-400 pl-1">Record triage → Audit Trail</span>
+            <span className="text-[11px] text-slate-400 pl-1">Record triage → Audit Trail</span>
           </div>
         </div>
 

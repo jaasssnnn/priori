@@ -189,7 +189,7 @@ export default function WorkflowsClient() {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Workflow Tracker</h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -198,9 +198,9 @@ export default function WorkflowsClient() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#1a3a2e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243f35] transition-colors"
+          className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-[#1a3a2e] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243f35] transition-colors"
         >
-          <Plus className="h-4 w-4" /> New Action Item
+          <Plus className="h-4 w-4 shrink-0" /> New Action Item
         </button>
       </div>
 

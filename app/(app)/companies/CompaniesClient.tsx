@@ -78,7 +78,7 @@ export default function CompaniesClient({ searchParamsPromise }: Props) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search for a company or app…"
               aria-label="Search for a company or app"
-              className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm shadow-sm placeholder:text-slate-400 focus:border-[#1a3a2e] focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/10 transition-colors"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm placeholder:text-slate-400 focus:border-[#1a3a2e] focus:outline-none focus:ring-2 focus:ring-[#1a3a2e]/10 transition-colors"
             />
           </div>
           <button
@@ -134,7 +134,7 @@ export default function CompaniesClient({ searchParamsPromise }: Props) {
                 <Link
                   key={entry.company.id}
                   href={`/companies/${entry.company.id}`}
-                  className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-[#1a3a2e]/30 hover:shadow-sm transition-all group"
+                  className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 hover:border-[#1a3a2e]/30 transition-all group"
                 >
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-100">
                     {entry.company.icon_url ? (
@@ -237,7 +237,7 @@ function CompanyResultCard({ company }: { company: Company }) {
   return (
     <Link
       href={`/companies/${company.id}`}
-      className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-[#1a3a2e]/30 hover:shadow-sm transition-all group"
+      className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 hover:border-[#1a3a2e]/30 transition-all group"
     >
       {/* Icon */}
       <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">

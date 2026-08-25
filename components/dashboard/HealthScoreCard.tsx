@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,8 +56,17 @@ export default function HealthScoreCard({ score, previousScore, reviewCount, avg
         <svg viewBox="0 0 220 110" className="w-full" aria-hidden="true">
           {/* Track — light gray */}
           <path d={track} fill="none" stroke="#e5e7eb" strokeWidth={SW} strokeLinecap="round" />
-          {/* Fill — single dark green */}
-          <path d={fill}  fill="none" stroke="#1a3a2e" strokeWidth={SW} strokeLinecap="round" />
+          {/* Fill — single dark green, draws in from the base on mount (§6) */}
+          <motion.path
+            d={fill}
+            fill="none"
+            stroke="#1a3a2e"
+            strokeWidth={SW}
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.9 }}
+          />
         </svg>
 
         {/* Score — vertically centred in the arc opening */}
@@ -93,19 +103,19 @@ export default function HealthScoreCard({ score, previousScore, reviewCount, avg
               : <TrendingDown className="h-3.5 w-3.5" />}
             {delta != null ? (delta > 0 ? `+${delta}` : delta) : "—"}
           </span>
-          <span className="text-[10px] text-slate-400">vs last wk</span>
+          <span className="text-[11px] text-slate-400">vs last wk</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 px-2">
           <span className="text-sm font-semibold text-slate-800">
             {avgRating.toFixed(1)}<span className="text-amber-400"> ★</span>
           </span>
-          <span className="text-[10px] text-slate-400">avg rating</span>
+          <span className="text-[11px] text-slate-400">avg rating</span>
         </div>
         <div className="flex flex-col items-center gap-0.5 px-2">
           <span className="text-sm font-semibold text-slate-800">
             {(reviewCount / 1000).toFixed(1)}k
           </span>
-          <span className="text-[10px] text-slate-400">reviews</span>
+          <span className="text-[11px] text-slate-400">reviews</span>
         </div>
       </div>
     </div>

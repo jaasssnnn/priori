@@ -10,7 +10,10 @@ export default function ScrapingOnboardingModal() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) setOpen(true);
+    const raf = requestAnimationFrame(() => {
+      if (!localStorage.getItem(STORAGE_KEY)) setOpen(true);
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   function dismiss() {
@@ -21,8 +24,8 @@ export default function ScrapingOnboardingModal() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden">
+    <div className="animate-scrim fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50">
+      <div className="animate-modal w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden">
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
@@ -69,7 +72,7 @@ export default function ScrapingOnboardingModal() {
               ))}
             </ul>
             <p className="text-xs text-slate-500 pt-0.5">
-              Clone the repo, install OpenCLI, and run <code className="rounded bg-slate-200 px-1 py-0.5 text-[10px] font-mono">npm run dev</code> locally to unlock social scraping.
+              Clone the repo, install OpenCLI, and run <code className="rounded bg-slate-200 px-1 py-0.5 text-[11px] font-mono">npm run dev</code> locally to unlock social scraping.
             </p>
           </div>
         </div>

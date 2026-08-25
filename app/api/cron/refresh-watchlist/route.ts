@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { detectSpike, detectNewTrend } from "@/lib/services/watchlist";
 import { generateAlertMessage } from "@/lib/ai/groq";
 import { sendAlertEmail } from "@/lib/services/email";
-import { buildSpikeMessage, sendSlackMessage } from "@/lib/services/slack";
+import { buildSpikeMessage } from "@/lib/services/slack";
 import type { Snapshot } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -168,12 +168,20 @@ export async function GET(request: Request) {
 
           if (slackConn?.access_token && slackConn.default_channel) {
             const slackMsg = buildSpikeMessage(alertRow, BASE);
-            const { ok } = await sendSlackMessage(
-              slackConn.default_channel,
-              slackMsg,
-              { ...slackConn, id: "", user_id: userId, team_id: "", team_name: "", created_at: "" }
-            );
-            if (ok) {
+            const slackRes = await fetch("https://slack.com/api/chat.postMessage", {
+              method: "POST",
+              headers: {
+                Authorization:  `Bearer ${slackConn.access_token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                channel: slackConn.default_channel,
+                text:    slackMsg.text,
+                blocks:  slackMsg.blocks,
+              }),
+            });
+            const slackJson = await slackRes.json().catch(() => ({ ok: false }));
+            if (slackJson.ok) {
               await supabase
                 .from("alerts")
                 .update({ slack_sent: true })

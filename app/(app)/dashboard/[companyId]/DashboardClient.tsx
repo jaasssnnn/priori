@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Bookmark, BookmarkCheck, Star, Clock, ExternalLink } from "lucide-react";
+import { CloseIcon } from "@/components/icons";
+import { clearCachedSnapshot } from "@/lib/localStore";
 import { useApp } from "@/providers/AppProvider";
 import HealthScoreCard from "@/components/dashboard/HealthScoreCard";
 import ComplaintCategoryCard from "@/components/dashboard/ComplaintCategoryCard";
@@ -22,6 +25,7 @@ interface Props {
 }
 
 export default function DashboardClient({ company, snapshot, previousSnapshot }: Props) {
+  const router = useRouter();
   const { isOnWatchlist, addToWatchlist, removeFromWatchlist } = useApp();
   const industryKey = company.industry ?? detectIndustry(company.app_id, company.name);
   const industryConfig = getIndustryConfig(industryKey);
@@ -42,9 +46,15 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
       await removeFromWatchlist(company.id);
       showToast(`${company.name} removed from watchlist`);
     } else {
-      await addToWatchlist(company.id);
+      await addToWatchlist(company, snapshot);
       showToast(`${company.name} added to watchlist`);
     }
+  }
+
+  // Clear the saved analysis for this company and leave the page
+  function dismissAnalysis() {
+    clearCachedSnapshot(company.id);
+    router.push("/companies");
   }
 
   return (
@@ -123,6 +133,14 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
               ) : (
                 <><Bookmark className="h-3.5 w-3.5" /> Add to Watchlist</>
               )}
+            </button>
+            <button
+              onClick={dismissAnalysis}
+              title="Close analysis"
+              aria-label="Close analysis"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors"
+            >
+              <CloseIcon size={16} />
             </button>
           </div>
         </div>

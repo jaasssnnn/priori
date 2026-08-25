@@ -79,7 +79,7 @@ export default function RatingDistributionChart({ distribution, avgRating }: Pro
             >
               {/* Tooltip on hover */}
               <div className="relative w-full flex justify-center">
-                <span className="absolute -top-6 hidden group-hover:block text-[10px] font-semibold text-slate-600 whitespace-nowrap bg-white border border-slate-100 rounded px-1.5 py-0.5 shadow-sm">
+                <span className="absolute -top-6 hidden group-hover:block text-[11px] font-semibold text-slate-600 whitespace-nowrap bg-white border border-slate-100 rounded px-1.5 py-0.5">
                   {item.count.toLocaleString()} ({pct}%)
                 </span>
               </div>

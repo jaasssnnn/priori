@@ -19,7 +19,7 @@ export default function LoginClient() {
       {/* Navbar */}
       <nav className="relative z-20 flex w-full items-center justify-between px-6 py-5 md:px-12">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a3a2e] shadow-sm">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a3a2e]">
             <img src="/logo.png" alt="" className="h-3.5 w-3.5 invert" />
           </div>
           <span className="text-base font-bold text-white drop-shadow">Priori</span>
@@ -36,17 +36,17 @@ export default function LoginClient() {
         </h1>
 
         <p className="mt-5 max-w-xl text-base text-white/80 drop-shadow md:text-lg">
-          Priori scores every app, surfaces what's breaking, and helps your team
-          close the loop on every complaint — powered by AI.
+          Priori scores every app, surfaces what&apos;s breaking, and helps your team
+          close the loop on every complaint, powered by AI.
         </p>
 
         <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row">
           <GoogleButton />
           <Link
             href="/overview"
-            className="rounded-full border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
+            className="tap rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[#1a3a2e] transition hover:bg-white/90"
           >
-            Try demo — no sign-in
+            Try the demo, no sign-in
           </Link>
         </div>
 
@@ -54,7 +54,7 @@ export default function LoginClient() {
 
       {/* Dashboard mockup */}
       <div className="relative z-10 mx-auto mt-10 w-full max-w-6xl px-4 pb-4 md:mt-14 md:px-8">
-        <div className="rounded-2xl border border-white/30 bg-white/15 p-2 shadow-2xl backdrop-blur-sm md:rounded-[2rem] md:p-3">
+        <div className="rounded-2xl border border-white/60 bg-white p-2 shadow-2xl md:rounded-[2rem] md:p-3">
           <div className="overflow-hidden rounded-xl bg-[#0f172a] md:rounded-3xl">
 
             {/* Browser chrome */}
@@ -146,7 +146,7 @@ export default function LoginClient() {
                     ].map((cat) => (
                       <div
                         key={cat.name}
-                        className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-4 py-2.5 shadow-sm"
+                        className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white px-4 py-2.5"
                       >
                         <div className={`h-2 w-2 shrink-0 rounded-full ${cat.dot}`} />
                         <span className="flex-1 text-xs font-medium text-slate-700">{cat.name}</span>

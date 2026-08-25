@@ -127,7 +127,7 @@ function SummaryCard({
         "rounded-2xl p-5 transition-all h-full flex flex-col min-h-[150px]",
         isGreen
           ? "bg-gradient-to-br from-[#1a3a2e] to-[#2a5240]"
-          : "bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm",
+          : "bg-white border border-slate-200 hover:border-slate-300",
         href && "cursor-pointer"
       )}
     >
@@ -464,7 +464,7 @@ function WatchlistCard({ entry }: { entry: WatchlistEntry }) {
   return (
     <Link
       href={`/companies/${entry.company.id}`}
-      className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 hover:border-[#1a3a2e]/30 hover:shadow-sm transition-all group"
+      className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4 hover:border-[#1a3a2e]/30 transition-all group"
     >
       <CompanyIcon url={entry.company.icon_url} name={entry.company.name} size="md" />
       <div className="flex-1 min-w-0">

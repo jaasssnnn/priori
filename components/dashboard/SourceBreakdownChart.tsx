@@ -64,7 +64,7 @@ export default function SourceBreakdownChart({ breakdown }: Props) {
 
       <ChartContainer
         config={chartConfig}
-        className="mx-auto aspect-square max-h-[220px] [&_.recharts-pie-label-text]:fill-slate-600 [&_.recharts-pie-label-text]:text-[10px]"
+        className="mx-auto aspect-square max-h-[220px] [&_.recharts-pie-label-text]:fill-slate-600 [&_.recharts-pie-label-text]:text-[11px]"
       >
         <PieChart>
           <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -86,7 +86,7 @@ export default function SourceBreakdownChart({ breakdown }: Props) {
               <span className="text-sm font-semibold text-slate-800">
                 {d.value.toLocaleString()}
               </span>
-              <span className="ml-1.5 text-[10px] text-slate-400">
+              <span className="ml-1.5 text-[11px] text-slate-400">
                 {Math.round((d.value / total) * 100)}%
               </span>
             </div>

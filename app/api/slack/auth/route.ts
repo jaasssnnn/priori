@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-const SCOPES        = "chat:write,channels:read,channels:join,users:read";
+const SCOPES        = "chat:write,channels:read,channels:join,groups:read,users:read";
 const REDIRECT_URI  = `${process.env.NEXT_PUBLIC_BASE_URL}/api/slack/callback`;
 
 export async function GET() {

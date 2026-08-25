@@ -66,3 +66,50 @@ body {
 .status-chip-in_progress  { background: var(--color-status-in-progress);  color: #a16207; }
 .status-chip-resolved     { background: var(--color-status-resolved);     color: #1a3a2e; }
 .status-chip-closed       { background: var(--color-status-closed);       color: #475569; }
+
+/* ─── Motion primitives (Apple fluid interface) ─────────────────────── */
+
+/* §1 Response — instant pointer-down feedback on every button.
+   Property list includes transform so hover color transitions survive. */
+button:not(:disabled) {
+  transition-property: transform, color, background-color, border-color, box-shadow, opacity, filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+  transition-duration: 60ms;            /* feedback lives on the press — near-instant */
+}
+
+/* Tap affordance for links / cards that behave like buttons */
+.tap { transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1); }
+.tap:active { transform: scale(0.98); }
+
+/* §12 Materials — modal + scrim materialize, not hard-cut */
+@keyframes scrim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-scrim { animation: scrim-in 200ms ease-out; }
+.animate-modal { animation: modal-in 300ms cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* §7/§8 Panel reveal — card expand, score breakdown */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-panel { animation: panel-in 260ms cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* §14 Accessibility — gentle, non-vestibular fallback */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: #ffffff !important; backdrop-filter: none !important; }
+}

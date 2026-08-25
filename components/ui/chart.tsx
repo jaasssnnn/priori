@@ -77,7 +77,7 @@ export function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm",
+        "rounded-lg border border-slate-200 bg-white px-3 py-2",
         className,
       )}
     >

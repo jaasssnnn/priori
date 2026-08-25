@@ -42,7 +42,7 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
     : null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden hover:border-[#1a3a2e]/20 hover:shadow-sm transition-all group">
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden hover:border-[#1a3a2e]/20 transition-all group">
       {/* Card header */}
       <div className="flex items-center gap-3 p-5 pb-3">
         <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-100">
@@ -147,7 +147,7 @@ function WatchlistCard({ entry, onRemove }: { entry: WatchlistEntry; onRemove: (
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function WatchlistClient() {
-  const { watchlist, watchlistLoading, removeFromWatchlist, addToWatchlist } = useApp();
+  const { watchlist, watchlistLoading, removeFromWatchlist } = useApp();
   const [removing, setRemoving] = useState<string | null>(null);
 
   async function handleRemove(companyId: string) {

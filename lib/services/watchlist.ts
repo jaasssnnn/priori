@@ -1,65 +1,116 @@
-import { config } from "@/lib/config";
 import { MOCK_COMPANIES } from "@/lib/mock/companies";
 import { MOCK_SNAPSHOTS, MOCK_PREVIOUS_SNAPSHOTS } from "@/lib/mock/snapshots";
-import type { Company, WatchlistEntry } from "@/types";
+import type { Company, Snapshot, WatchlistEntry } from "@/types";
 
-// Default watchlist contains all three demo companies
-let _mockWatchlist: string[] = ["cred", "phonepe", "paytm"];
+// ─── localStorage-backed watchlist ──────────────────────────────────────────
+// Works without a Supabase login (demo mode) and persists across refreshes.
+// Server DB writes are still fired best-effort so a logged-in user's data and
+// the cron job stay in sync.
 
-export async function getWatchlist(): Promise<WatchlistEntry[]> {
-  if (config.USE_MOCK_DB) {
-    await delay(300);
-    return _mockWatchlist
-      .map((id): WatchlistEntry | null => {
-        const company = MOCK_COMPANIES.find((c) => c.id === id);
-        const latest = MOCK_SNAPSHOTS[id];
-        const previous = MOCK_PREVIOUS_SNAPSHOTS[id];
-        if (!company || !latest) return null;
+const LS_KEY = "priori_watchlist";
+const DEFAULT_IDS = ["cred", "phonepe", "paytm"];
 
-        const trend = deriveTrend(latest.health_score, previous?.health_score);
-        const unread_alerts = id === "cred" ? 1 : id === "phonepe" ? 1 : id === "paytm" ? 1 : 0;
-
-        return { company, latest_snapshot: latest, previous_snapshot: previous, trend, unread_alerts };
-      })
-      .filter((e): e is WatchlistEntry => e !== null);
+function readLS(): WatchlistEntry[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? (JSON.parse(raw) as WatchlistEntry[]) : null;
+  } catch {
+    return null;
   }
-  const res = await fetch("/api/watchlist");
-  if (!res.ok) throw new Error("Failed to fetch watchlist");
-  return res.json();
 }
 
-export async function addToWatchlist(company: Company): Promise<void> {
-  if (config.USE_MOCK_DB) {
-    await delay(200);
-    if (!_mockWatchlist.includes(company.id)) {
-      _mockWatchlist = [company.id, ..._mockWatchlist];
-    }
-    return;
+function writeLS(entries: WatchlistEntry[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(entries));
+  } catch {
+    /* ignore quota errors */
   }
-  await fetch("/api/watchlist", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      company_id:    company.id,
-      company_name:  company.name,
-      company_icon:  company.icon_url,
-      app_id:        company.app_id,
-      app_store_id:  company.app_store_id,
-    }),
-  });
+}
+
+function emptySnapshot(companyId: string): Snapshot {
+  return {
+    id: `snap-${companyId}-placeholder`,
+    company_id: companyId,
+    health_score: 75,
+    categories: [],
+    review_count: 0,
+    avg_rating: 0,
+    source_breakdown: { play_store: 0, app_store: 0, reddit: 0, twitter: 0, instagram: 0, youtube: 0, facebook: 0 },
+    rating_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 },
+    sentiment_trend: [],
+    ai_summary: { health_assessment: "", urgent_problem: "", improving: "" },
+    created_at: new Date().toISOString(),
+  };
+}
+
+function buildEntry(company: Company, snapshot?: Snapshot): WatchlistEntry {
+  const latest = snapshot ?? MOCK_SNAPSHOTS[company.id] ?? emptySnapshot(company.id);
+  const previous = MOCK_PREVIOUS_SNAPSHOTS[company.id];
+  return {
+    company,
+    latest_snapshot: latest,
+    previous_snapshot: previous,
+    trend: deriveTrend(latest.health_score, previous?.health_score),
+    unread_alerts: 0,
+  };
+}
+
+function seedDefault(): WatchlistEntry[] {
+  const entries = DEFAULT_IDS
+    .map((id) => {
+      const company = MOCK_COMPANIES.find((c) => c.id === id);
+      const latest = MOCK_SNAPSHOTS[id];
+      if (!company || !latest) return null;
+      return buildEntry(company, latest);
+    })
+    .filter((e): e is WatchlistEntry => e !== null);
+  writeLS(entries);
+  return entries;
+}
+
+export async function getWatchlist(): Promise<WatchlistEntry[]> {
+  const stored = readLS();
+  if (stored) return stored;
+  return seedDefault();
+}
+
+export async function addToWatchlist(company: Company, snapshot?: Snapshot): Promise<void> {
+  const entries = readLS() ?? seedDefault();
+  if (!entries.some((e) => e.company.id === company.id)) {
+    writeLS([buildEntry(company, snapshot), ...entries]);
+  }
+  // Best-effort server sync (no-op / 401 in demo mode)
+  try {
+    await fetch("/api/watchlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_id:   company.id,
+        company_name: company.name,
+        company_icon: company.icon_url,
+        app_id:       company.app_id,
+        app_store_id: company.app_store_id,
+      }),
+    });
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function removeFromWatchlist(companyId: string): Promise<void> {
-  if (config.USE_MOCK_DB) {
-    await delay(200);
-    _mockWatchlist = _mockWatchlist.filter((id) => id !== companyId);
-    return;
+  const entries = readLS() ?? seedDefault();
+  writeLS(entries.filter((e) => e.company.id !== companyId));
+  try {
+    await fetch(`/api/watchlist/${companyId}`, { method: "DELETE" });
+  } catch {
+    /* ignore */
   }
-  await fetch(`/api/watchlist/${companyId}`, { method: "DELETE" });
 }
 
 export function isOnWatchlist(companyId: string): boolean {
-  return _mockWatchlist.includes(companyId);
+  return (readLS() ?? []).some((e) => e.company.id === companyId);
 }
 
 /**
@@ -108,8 +159,4 @@ function deriveTrend(
   if (delta > 3) return "improving";
   if (delta < -3) return "worsening";
   return "stable";
-}
-
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }
