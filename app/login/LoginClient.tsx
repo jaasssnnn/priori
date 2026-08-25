@@ -44,7 +44,7 @@ export default function LoginClient() {
           <GoogleButton />
           <Link
             href="/overview"
-            className="tap rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[#1a3a2e] transition hover:bg-white/90"
+            className="tap rounded-full border border-white/40 bg-white/10 px-6 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
           >
             Try the demo, no sign-in
           </Link>
@@ -54,7 +54,7 @@ export default function LoginClient() {
 
       {/* Dashboard mockup */}
       <div className="relative z-10 mx-auto mt-10 w-full max-w-6xl px-4 pb-4 md:mt-14 md:px-8">
-        <div className="rounded-2xl border border-white/60 bg-white p-2 shadow-2xl md:rounded-[2rem] md:p-3">
+        <div className="rounded-2xl border border-white/30 bg-white/15 p-2 shadow-2xl backdrop-blur-sm md:rounded-[2rem] md:p-3">
           <div className="overflow-hidden rounded-xl bg-[#0f172a] md:rounded-3xl">
 
             {/* Browser chrome */}
