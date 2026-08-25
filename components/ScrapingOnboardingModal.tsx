@@ -48,7 +48,7 @@ export default function ScrapingOnboardingModal() {
               <p className="text-xs font-semibold text-slate-800">Works on Vercel (cloud)</p>
             </div>
             <ul className="space-y-1 pl-6">
-              {["Google Play Store", "Apple App Store", "Twitter / X (with API key)"].map((s) => (
+              {["Google Play Store", "Apple App Store"].map((s) => (
                 <li key={s} className="text-xs text-slate-600 flex items-center gap-1.5">
                   <span className="h-1 w-1 rounded-full bg-slate-400 shrink-0" />
                   {s}
