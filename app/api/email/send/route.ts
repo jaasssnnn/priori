@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // Resend free-tier from address (no domain verification needed)
 const FROM = "Priori Alerts <onboarding@resend.dev>";
 
 export async function POST(request: Request) {
+  // Instantiate lazily so a missing key doesn't crash the build / other routes
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "Email not configured" }, { status: 503 });
+  }
+  const resend = new Resend(apiKey);
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
