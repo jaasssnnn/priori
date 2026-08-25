@@ -30,8 +30,8 @@ export default function LoginClient() {
 
       {/* Hero */}
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 pt-10 text-center md:pt-16">
-        <h1 className="text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl"
-          style={{ textShadow: "0 2px 24px rgba(0,0,0,0.18)" }}>
+        <h1 className="text-5xl font-bold tracking-tight text-[#1a3a2e] md:text-6xl lg:text-7xl"
+          style={{ textShadow: "0 2px 20px rgba(255,255,255,0.45)" }}>
           Every complaint.<br className="hidden md:block" /> One platform.
         </h1>
 
