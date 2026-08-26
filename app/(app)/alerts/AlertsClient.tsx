@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bell, BellOff, TrendingUp, Sparkles, X, CheckCheck, Loader2 } from "lucide-react";
+import { BellOff, TrendingUp, Sparkles, X, CheckCheck, Loader2 } from "lucide-react";
+import { PageSkeleton } from "@/components/Skeletons";
 import { useApp } from "@/providers/AppProvider";
 import type { Alert } from "@/types";
 import { cn, timeAgo } from "@/lib/utils";
@@ -126,11 +127,7 @@ export default function AlertsClient() {
   }
 
   if (alertsLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
-      </div>
-    );
+    return <PageSkeleton variant="rows" count={5} />;
   }
 
   return (

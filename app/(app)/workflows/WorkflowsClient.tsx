@@ -5,6 +5,7 @@ import {
   Plus, ChevronDown, ChevronUp, Filter, Clock, CheckCircle2,
   Circle, XCircle, Loader2, MessageSquare,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/Skeletons";
 import { useApp } from "@/providers/AppProvider";
 import CreateActionItemModal from "@/components/dashboard/CreateActionItemModal";
 import type { ActionItem, ActionItemStatus } from "@/types";
@@ -179,11 +180,7 @@ export default function WorkflowsClient() {
   }
 
   if (actionItemsLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
-      </div>
-    );
+    return <PageSkeleton variant="rows" count={5} />;
   }
 
   return (

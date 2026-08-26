@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, TrendingDown, Minus, Bell, Plus, Loader2,
+  TrendingUp, TrendingDown, Minus, Bell, Plus,
   BookmarkX, ArrowRight, BarChart2,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/Skeletons";
 import { useApp } from "@/providers/AppProvider";
 import type { WatchlistEntry } from "@/types";
 import { cn, timeAgo } from "@/lib/utils";
@@ -160,11 +161,7 @@ export default function WatchlistClient() {
   }
 
   if (watchlistLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
-      </div>
-    );
+    return <PageSkeleton variant="cards" count={3} />;
   }
 
   return (

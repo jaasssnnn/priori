@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react";
 import {
-  Download, Filter, Loader2, ScrollText,
+  Download, Filter, ScrollText,
   CheckCircle2, MinusCircle, Clock3,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/Skeletons";
 import { useApp } from "@/providers/AppProvider";
 import type { AuditDecision, AuditEntry } from "@/types";
 import { cn, formatDate } from "@/lib/utils";
@@ -98,11 +99,7 @@ export default function AuditClient() {
   }, [auditEntries]);
 
   if (auditLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-[#1a3a2e]" />
-      </div>
-    );
+    return <PageSkeleton variant="rows" count={6} />;
   }
 
   return (
