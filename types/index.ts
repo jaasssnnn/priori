@@ -73,6 +73,16 @@ export interface AISummary {
   improving: string;
 }
 
+/** Amazon six-part narrative memo generated from a complaint theme. */
+export interface IssueMemo {
+  introduction: string;
+  objectives: string;
+  hypothesis: string;
+  current_state: string;
+  lessons_learned: string;
+  strategy: string;
+}
+
 export interface Snapshot {
   id: string;
   company_id: string;

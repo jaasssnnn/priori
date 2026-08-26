@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, ShieldAlert, ExternalLink, Plus, ArrowUpRight, Info } from "lucide-react";
+import { ChevronDown, ChevronUp, ShieldAlert, ExternalLink, Plus, ArrowUpRight, Info, FileText } from "lucide-react";
 import { cn, priorityBadgeClass, getPriorityBand } from "@/lib/utils";
 import { deriveScoreBreakdown } from "@/lib/scoring";
 import type { ComplaintCategory, Quote, DataSource } from "@/types";
@@ -11,6 +11,7 @@ interface Props {
   rank: number;
   onCreateActionItem: (category: ComplaintCategory) => void;
   onLogDecision: (category: ComplaintCategory) => void;
+  onGenerateMemo: (category: ComplaintCategory) => void;
 }
 
 // ─── Source meta ──────────────────────────────────────────────────────────────
@@ -174,7 +175,7 @@ function ScoreBreakdown({ score, avgSeverity, riskRelevance }: {
 // ─── Main card ────────────────────────────────────────────────────────────────
 
 export default function ComplaintCategoryCard({
-  category, rank, onCreateActionItem, onLogDecision,
+  category, rank, onCreateActionItem, onLogDecision, onGenerateMemo,
 }: Props) {
   const [expanded, setExpanded]     = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -299,8 +300,8 @@ export default function ComplaintCategoryCard({
       )}
 
       {/* Actions row */}
-      <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 bg-slate-50">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-3 bg-slate-50">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-col items-start gap-0.5">
             <button
               onClick={() => onCreateActionItem(category)}
@@ -309,6 +310,15 @@ export default function ComplaintCategoryCard({
               <Plus className="h-3.5 w-3.5" /> Create Action Item
             </button>
             <span className="text-[11px] text-slate-400 pl-1">Assign work → Workflows</span>
+          </div>
+          <div className="flex flex-col items-start gap-0.5">
+            <button
+              onClick={() => onGenerateMemo(category)}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <FileText className="h-3.5 w-3.5" /> Generate Memo
+            </button>
+            <span className="text-[11px] text-slate-400 pl-1">Brief + citations → Slack</span>
           </div>
           <div className="flex flex-col items-start gap-0.5">
             <button

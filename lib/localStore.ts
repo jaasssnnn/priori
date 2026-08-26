@@ -7,9 +7,10 @@
  * that state into localStorage. All helpers are SSR-safe (no-op on the server).
  */
 
-import type { Snapshot } from "@/types";
+import type { Snapshot, IssueMemo } from "@/types";
 
 const SNAP_PREFIX = "priori_snapshot_";
+const MEMO_PREFIX = "priori_memo_";
 
 /** Cached analysis snapshot for a company, or null. */
 export function getCachedSnapshot(companyId: string): Snapshot | null {
@@ -35,6 +36,32 @@ export function clearCachedSnapshot(companyId: string): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(SNAP_PREFIX + companyId);
+  } catch {
+    /* ignore */
+  }
+}
+
+// ─── Issue memos (per company + complaint theme) ─────────────────────────────
+
+function memoKey(companyId: string, categoryName: string): string {
+  const slug = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return `${MEMO_PREFIX}${companyId}__${slug}`;
+}
+
+export function getCachedMemo(companyId: string, categoryName: string): IssueMemo | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(memoKey(companyId, categoryName));
+    return raw ? (JSON.parse(raw) as IssueMemo) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setCachedMemo(companyId: string, categoryName: string, memo: IssueMemo): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(memoKey(companyId, categoryName), JSON.stringify(memo));
   } catch {
     /* ignore */
   }

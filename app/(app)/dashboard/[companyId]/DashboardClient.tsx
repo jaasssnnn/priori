@@ -14,6 +14,7 @@ import SentimentTrendChart from "@/components/dashboard/SentimentTrendChart";
 import AISummaryPanel from "@/components/dashboard/AISummaryPanel";
 import CreateActionItemModal from "@/components/dashboard/CreateActionItemModal";
 import LogDecisionModal from "@/components/dashboard/LogDecisionModal";
+import IssueMemoModal from "@/components/dashboard/IssueMemoModal";
 import type { Company, Snapshot, ComplaintCategory } from "@/types";
 import { timeAgo } from "@/lib/utils";
 import { getIndustryConfig, detectIndustry } from "@/lib/industries";
@@ -32,6 +33,7 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
 
   const [actionItemCategory, setActionItemCategory] = useState<ComplaintCategory | null>(null);
   const [decisionCategory, setDecisionCategory]     = useState<ComplaintCategory | null>(null);
+  const [memoCategory, setMemoCategory]             = useState<ComplaintCategory | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const onWatchlist = isOnWatchlist(company.id);
@@ -186,6 +188,7 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
               rank={i + 1}
               onCreateActionItem={(c) => setActionItemCategory(c)}
               onLogDecision={(c) => setDecisionCategory(c)}
+              onGenerateMemo={(c) => setMemoCategory(c)}
             />
           ))}
         </div>
@@ -211,6 +214,13 @@ export default function DashboardClient({ company, snapshot, previousSnapshot }:
           company={company}
           onClose={() => setDecisionCategory(null)}
           onSuccess={() => showToast("Decision logged to audit trail.")}
+        />
+      )}
+      {memoCategory && (
+        <IssueMemoModal
+          category={memoCategory}
+          company={company}
+          onClose={() => setMemoCategory(null)}
         />
       )}
     </div>

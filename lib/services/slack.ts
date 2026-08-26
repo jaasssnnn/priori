@@ -1,4 +1,4 @@
-import type { ActionItem, Alert, SlackChannel, SlackConnection, SlackMessage } from "@/types";
+import type { ActionItem, Alert, ComplaintCategory, Company, IssueMemo, SlackChannel, SlackConnection, SlackMessage } from "@/types";
 
 /** Current user's saved Slack connection, or null if not connected. */
 export async function getSlackConnection(): Promise<SlackConnection | null> {
@@ -57,6 +57,52 @@ export function buildAssignmentMessage(item: ActionItem, baseUrl: string): Slack
             text: { type: "plain_text", text: "View in Priori →" },
             url: `${baseUrl}/workflows`,
             action_id: "view_action_item",
+            style: "primary",
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/** Build Block Kit message for an issue memo (Amazon six-part narrative + citations). */
+export function buildIssueMemoMessage(
+  memo: IssueMemo,
+  category: ComplaintCategory,
+  company: Company,
+  baseUrl: string,
+): SlackMessage {
+  const section = (label: string, text: string) => ({
+    type: "section" as const,
+    text: { type: "mrkdwn" as const, text: `*${label}*\n${text || "—"}` },
+  });
+
+  const citations = category.quotes
+    .slice(0, 3)
+    .map((q) => `> "${q.text}"  _— ${q.source}${q.rating != null ? `, ${q.rating}★` : ""}_`)
+    .join("\n");
+
+  return {
+    text: `Issue Memo: ${category.name} for ${company.name}`,
+    blocks: [
+      { type: "header", text: { type: "plain_text", text: `Issue Memo — ${company.name}` } },
+      section("Theme", `${category.name}  ·  Priority ${category.score}/100  ·  ${category.complaint_count} complaints`),
+      { type: "divider" },
+      section("Introduction", memo.introduction),
+      section("Objectives", memo.objectives),
+      section("Hypothesis", memo.hypothesis),
+      section("Current state", memo.current_state),
+      section("Lessons learned", memo.lessons_learned),
+      section("Strategy", memo.strategy),
+      ...(citations ? [{ type: "divider" as const }, section("What users say", citations)] : []),
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: { type: "plain_text", text: "View in Priori →" },
+            url: `${baseUrl}/companies/${company.id}`,
+            action_id: "view_memo",
             style: "primary",
           },
         ],
