@@ -32,7 +32,7 @@ export default function LoginClient() {
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 pt-10 text-center md:pt-16">
         <h1 className="text-5xl font-bold tracking-tight text-[#1a3a2e] md:text-6xl lg:text-7xl"
           style={{ textShadow: "0 2px 20px rgba(255,255,255,0.45)" }}>
-          Every complaint.<br className="hidden md:block" /> One platform.
+          Every complaint.<br className="hidden md:block" /> Scored, ranked, resolved.
         </h1>
 
         <p className="mt-5 max-w-xl text-base text-white/80 drop-shadow md:text-lg">
